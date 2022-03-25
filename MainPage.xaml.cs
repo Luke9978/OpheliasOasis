@@ -39,5 +39,10 @@ namespace OpheliasOasis
             }
                 
         }
+
+        void AppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Handle button click.
+        }
     }
 }
