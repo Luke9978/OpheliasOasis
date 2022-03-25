@@ -22,9 +22,22 @@ namespace OpheliasOasis
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        src.DatabaseManager dataBase = new src.DatabaseManager();
+
         public MainPage()
         {
             this.InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Windows.UI.Xaml.Controls.Button)
+            {
+                var button = sender as Windows.UI.Xaml.Controls.Button;
+
+                button.Content = dataBase.hello();
+            }
+                
         }
     }
 }

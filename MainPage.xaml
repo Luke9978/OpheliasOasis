@@ -9,6 +9,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <CalendarView Margin="10,275,0,0" VerticalAlignment="Top" Height="715" Width="819"/>
+        <Button Content="Button" Margin="959,110,0,0" VerticalAlignment="Top" Click="Button_Click" Name="Test"/>
 
     </Grid>
 </Page>
