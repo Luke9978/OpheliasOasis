@@ -23,6 +23,10 @@ namespace OpheliasOasis
     public sealed partial class MainPage : Page
     {
         src.DatabaseManager dataBase = new src.DatabaseManager();
+        OverviewPage overviewPage = new OverviewPage();
+        CustomerLookupPage customerLookupPage = new CustomerLookupPage();
+        ReportsPage reportsPage = new ReportsPage();
+        ManagementPage managementPage = new ManagementPage();
 
         public MainPage()
         {
@@ -43,6 +47,27 @@ namespace OpheliasOasis
         void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
             // Handle button click.
+        }
+
+        private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        {
+            var item = args.InvokedItemContainer;
+            switch (item.Name)
+            {
+                case "Overview":
+                    ContentFrame.Content = overviewPage;
+                    break;
+                case "CustomerLookup":
+                    ContentFrame.Content = customerLookupPage;
+                    break;
+                case "Reports":
+                    ContentFrame.Content = reportsPage;
+                    break;
+                case "Management":
+                    ContentFrame.Content = managementPage;
+                    break;
+
+            }
         }
     }
 }

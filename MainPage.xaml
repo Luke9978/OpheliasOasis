@@ -6,24 +6,21 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1141" Width="1707">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="1000" Width="1500">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="178*"/>
-            <RowDefinition Height="963*"/>
-        </Grid.RowDefinitions>
         <!-- App bar button with symbol icon. -->
-        <NavigationView x:Name="NavigationMenu" Grid.RowSpan="2" PaneDisplayMode="Top">
+        <NavigationView x:Name="NavigationMenu" PaneDisplayMode="Top" ItemInvoked="NavigationView_ItemInvoked" Height="1000">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Overview" x:Name="Overview" IsSelected ="True"/>
+                <NavigationViewItem Content="Overview" x:Name="Overview"/>
                 <NavigationViewItem Content="Customer Lookup" x:Name="CustomerLookup"/>
                 <NavigationViewItem Content="Reports" x:Name="Reports"/>
                 <NavigationViewItem Content="Management" x:Name="Management"/>
             </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame"/>
         </NavigationView>
 
-                <!-- App bar button with bitmap icon. -->
+        <!-- App bar button with bitmap icon. -->
 
         <!-- App bar button with font icon. -->
 
