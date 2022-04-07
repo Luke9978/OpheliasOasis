@@ -10,7 +10,11 @@
     d:DesignWidth="1500">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Overview" VerticalAlignment="Top" Width="100" Height="50" TextAlignment="Center"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Overview" VerticalAlignment="Top" Width="100" Height="50" TextAlignment="Center" SelectionChanged="TextBlock_SelectionChanged" FontSize="24"/>
+        <CalendarView Margin="52,165,0,0" VerticalAlignment="Top" Height="550" Width="600"/>
+        <Button x:Name="CreateReservationButton" Content="Create Reservation" Margin="52,100,0,0" VerticalAlignment="Top" Height="40" Width="150"/>
+        <Button x:Name="PrintReciptButton" Content="Print Receipt" Margin="1236,100,0,0" VerticalAlignment="Top" Height="40" Width="150"/>
+        <ListView Width="600" Height="550" Margin="838,165,62,245" />
 
     </Grid>
 </UserControl>
