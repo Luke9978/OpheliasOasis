@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using System.IO;
 using Windows.Storage;
+using Windows.Foundation.Collections;
 using System.Collections.ObjectModel;
 
 namespace OpheliasOasis.src
 {
     public class DatabaseManager
     {
-        SqliteConnection connection;
-        //TODO make this a map
-        ObservableCollection<Reservation> Reservations;
-
+        // This should only ever be 'created' during the constuctor
+        readonly SqliteConnection connection;
+        readonly ReservationMap Reservations;
+        private bool _run_event_handler;
 
         const string SQLTIME = "yyyy-MM-dd HH:mm:ss";
 
@@ -26,6 +23,11 @@ namespace OpheliasOasis.src
 
         public DatabaseManager()
         {
+            Reservations = new ReservationMap();
+            // This needs to be false when refreshing the list from the DB
+            _run_event_handler = false;
+            Reservations.MapChanged += Reservations_MapChanged;
+
             // File needs to be where the application is allowed to be in because
             // the application is "sandboxed" to only access that file 
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
@@ -90,19 +92,46 @@ namespace OpheliasOasis.src
 	                  PRIMARY KEY(""ID"" AUTOINCREMENT))";
                 command = new SqliteCommand(cmd, connection);
                 command.ExecuteNonQuery();
+            }
+            GetReservations();
+            _run_event_handler = true;
+        }
 
-               
+        // Send the change to the list back to the database
+        private void Reservations_MapChanged(IObservableMap<int, Reservation> sender, IMapChangedEventArgs<int> @event)
+        {
+            if (@event == null || !_run_event_handler) return;
 
+            switch (@event.CollectionChange)
+            {
+                case CollectionChange.Reset:
+                    _run_event_handler = false;
+                    GetReservations();
+                    _run_event_handler = true;
+                    break;
+                case CollectionChange.ItemInserted:
+                    // Send back to db
+                    break;
+                case CollectionChange.ItemRemoved:
+
+                    break;
+                case CollectionChange.ItemChanged:
+
+                    break;
+                // No reason? Do nothing
+                default:
+                    break;
             }
         }
-        public ObservableCollection<Reservation> GetReservations()
+
+        public IObservableMap<int, Reservation> GetReservations()
         {
             var currentDate = DateTime.Today;
-            var cmd = String.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
+            var cmd         = String.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
             
             var reservations = new ObservableCollection<Reservation>();
-            var command = new SqliteCommand(cmd, connection);
-            System.Console.WriteLine("SQL result ");
+            var command      = new SqliteCommand(cmd, connection);
+
             try
             {
                 using (var reader = command.ExecuteReader())
@@ -129,7 +158,14 @@ namespace OpheliasOasis.src
                 System.Console.Error.WriteLine(e.ToString());
             }
 
-            Reservations = reservations;
+            // Only add new items. This really only should happen once during init
+            foreach (var res in reservations)
+            {
+                if (!Reservations.ContainsKey(res.id))
+                { 
+                    Reservations.Add(res.id, res);
+                }
+            }
 
             return Reservations;
         }
