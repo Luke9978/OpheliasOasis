@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OpheliasOasis
 {
-
-    struct DateRange
+    public class Reservation : INotifyPropertyChanged
     {
-        DateTime start;
-        DateTime end;
-    }
+        public int id { get; set; }
+        public string type { get; set; }
+        public string status { get; set; }
+        public int paid { get; set; }
+        public DateTime startDate;
+        public DateTime endDate;
+        public IDictionary<DateTime, float> pricePerDay { get; set; }
+        public int CustomerId { get; set; }
+        public int RoomId { get; set; }
 
-    struct reservation
-    {
-        int id;
-        DateRange date;
-        IDictionary<DateTime, float> pricePerDay;
-        int CustomerId;
-        int RoomId;
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     enum reportType 
