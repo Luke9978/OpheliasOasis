@@ -22,31 +22,15 @@ namespace OpheliasOasis
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        src.DatabaseManager dataBase = new src.DatabaseManager();
-        OverviewPage overviewPage = new OverviewPage();
-        CustomerLookupPage customerLookupPage = new CustomerLookupPage();
-        ReportsPage reportsPage = new ReportsPage();
-        ManagementPage managementPage = new ManagementPage();
+        src.DatabaseManager dataBase           = new src.DatabaseManager();
+        OverviewPage        overviewPage       = new OverviewPage();
+        CustomerLookupPage  customerLookupPage = new CustomerLookupPage();
+        ReportsPage         reportsPage        = new ReportsPage();
+        ManagementPage      managementPage     = new ManagementPage();
 
         public MainPage()
         {
             this.InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Windows.UI.Xaml.Controls.Button)
-            {
-                var button = sender as Windows.UI.Xaml.Controls.Button;
-
-                button.Content = dataBase.hello();
-            }
-                
-        }
-
-        void AppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Handle button click.
         }
 
         private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
