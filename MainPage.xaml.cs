@@ -50,7 +50,36 @@ namespace OpheliasOasis
                 case "Management":
                     ContentFrame.Content = managementPage;
                     break;
-
+                case "Login":
+                    Login.Visibility = Visibility.Collapsed;
+                    Login.IsEnabled = false;
+                    Logout.Visibility = Visibility.Visible;
+                    Logout.IsEnabled = true;
+                    Overview.Visibility = Visibility.Visible;
+                    Overview.IsEnabled = true;
+                    CustomerLookup.Visibility = Visibility.Visible;
+                    CustomerLookup.IsEnabled = true;
+                    Reports.Visibility = Visibility.Visible;
+                    Reports.IsEnabled = true;
+                    Management.Visibility = Visibility.Visible;
+                    Management.IsEnabled = true;
+                    ContentFrame.Content = null;
+                    break;
+                case "Logout":
+                    Logout.Visibility = Visibility.Collapsed;
+                    Logout.IsEnabled = false;
+                    Login.Visibility = Visibility.Visible;
+                    Login.IsEnabled = true;
+                    Overview.Visibility = Visibility.Collapsed;
+                    Overview.IsEnabled = false;
+                    CustomerLookup.Visibility = Visibility.Collapsed;
+                    CustomerLookup.IsEnabled = false;
+                    Reports.Visibility = Visibility.Collapsed;
+                    Reports.IsEnabled = false;
+                    Management.Visibility = Visibility.Collapsed;
+                    Management.IsEnabled = false;
+                    ContentFrame.Content = null;
+                    break;
             }
         }
     }

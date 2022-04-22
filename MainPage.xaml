@@ -10,12 +10,14 @@
 
     <Grid>
         <!-- App bar button with symbol icon. -->
-        <NavigationView x:Name="NavigationMenu" PaneDisplayMode="Top" ItemInvoked="NavigationView_ItemInvoked" Height="1000">
+        <NavigationView x:Name="NavigationMenu" PaneDisplayMode="Top" ItemInvoked="NavigationView_ItemInvoked" Height="1000" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Overview" x:Name="Overview"/>
-                <NavigationViewItem Content="Customer Lookup" x:Name="CustomerLookup"/>
-                <NavigationViewItem Content="Reports" x:Name="Reports"/>
-                <NavigationViewItem Content="Management" x:Name="Management"/>
+                <NavigationViewItem Content="Login" x:Name="Login"/>
+                <NavigationViewItem Content="Logout" x:Name="Logout" IsEnabled="False" Visibility="Collapsed"/>
+                <NavigationViewItem Content="Overview" x:Name="Overview" IsEnabled="False" Visibility="Collapsed"/>
+                <NavigationViewItem Content="Customer Lookup" x:Name="CustomerLookup" IsEnabled="False" Visibility="Collapsed"/>
+                <NavigationViewItem Content="Reports" x:Name="Reports" IsEnabled="False" Visibility="Collapsed"/>
+                <NavigationViewItem Content="Management" x:Name="Management" IsEnabled="False" Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame"/>
         </NavigationView>
