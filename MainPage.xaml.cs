@@ -40,7 +40,6 @@ namespace OpheliasOasis
             {
                 var button = sender as Windows.UI.Xaml.Controls.Button;
 
-                button.Content = dataBase.hello();
             }
                 
         }
