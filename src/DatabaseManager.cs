@@ -183,32 +183,24 @@ namespace OpheliasOasis.src
             return Reservations;
         }
 
-        public IObservableMap<int, Reservation> GetPricePerDay()
+        public IObservableMap<DateTime, double> GetPricePerDay()
         {
             var currentDate = DateTime.Today;
             var cmd = string.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
 
-            var reservations = new ObservableCollection<Reservation>();
+            var priceList = new ObservableCollection<PricePerDay>();
             var command = new SqliteCommand(cmd, Connection);
 
+            // TODO I expect this to error out
             try
             {
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        reservations.Add(new Reservation
-                        {
-                            id         = reader.GetInt32(0),
-                            type       = reader.GetString(1),
-                            CustomerId = reader.GetInt32(2),
-                            status     = reader.GetString(3),
-                            paid       = reader.GetInt32(4),
-                            RoomId     = reader.GetInt32(5),
-                            startDate  = DateTime.Parse(reader.GetString(6)),
-                            endDate    = DateTime.Parse(reader.GetString(7)),
+                        //TODO
+                        //DateTime date = DateTime.Parse(reader.GetString(1));
 
-                        });
                     }
                 }
             }
@@ -217,16 +209,7 @@ namespace OpheliasOasis.src
                 System.Console.Error.WriteLine(e.ToString());
             }
 
-            // Only add new items. This really only should happen once during init
-            foreach (var res in reservations)
-            {
-                if (!Reservations.ContainsKey(res.id))
-                {
-                    Reservations.Add(res.id, res);
-                }
-            }
-
-            return Reservations;
+            return PriceLookup;
         }
 
     }
