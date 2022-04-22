@@ -10,19 +10,25 @@ namespace OpheliasOasis.src
     public class DatabaseManager
     {
         // This should only ever be 'created' during the constuctor
-        readonly SqliteConnection connection;
-        readonly ReservationMap Reservations;
+        readonly SqliteConnection Connection;
+        
+        
+        // Database 
+        readonly ReservationMap   Reservations;
+        readonly PricePerDay      PriceLookup;
+        //readonly
         private bool _run_event_handler;
 
         const string SQLTIME = "yyyy-MM-dd HH:mm:ss";
 
         ~DatabaseManager()
         {
-            connection.Close();
+            Connection.Close();
         }
 
         public DatabaseManager()
         {
+            PriceLookup = new PricePerDay();
             Reservations = new ReservationMap();
             // This needs to be false when refreshing the list from the DB
             _run_event_handler = false;
@@ -43,10 +49,10 @@ namespace OpheliasOasis.src
             };
 
 
-            connection = new SqliteConnection(_sql.ConnectionString);
+            Connection = new SqliteConnection(_sql.ConnectionString);
             try
             {
-                connection.Open();
+                Connection.Open();
             }
             catch (SqliteException e)
             {
@@ -68,7 +74,7 @@ namespace OpheliasOasis.src
 	                  ""CREDIT_CARD""   TEXT,
 	                  PRIMARY KEY(""ID"" AUTOINCREMENT),
 	                  UNIQUE(""ID""))";
-                var command = new SqliteCommand(cmd, connection);
+                var command = new SqliteCommand(cmd, Connection);
                 command.ExecuteNonQuery();
 
                 cmd =
@@ -76,7 +82,7 @@ namespace OpheliasOasis.src
                       ""Day""   TEXT NOT NULL UNIQUE,
                       ""Rate""  REAL NOT NULL,
 	                  PRIMARY KEY(""Day""))";
-                command = new SqliteCommand(cmd, connection);
+                command = new SqliteCommand(cmd, Connection);
                 command.ExecuteNonQuery();
 
                 cmd =
@@ -90,7 +96,7 @@ namespace OpheliasOasis.src
 	                  ""START_DATE""    TEXT NOT NULL,
 	                  ""END_DATE""  TEXT NOT NULL,
 	                  PRIMARY KEY(""ID"" AUTOINCREMENT))";
-                command = new SqliteCommand(cmd, connection);
+                command = new SqliteCommand(cmd, Connection);
                 command.ExecuteNonQuery();
             }
             GetReservations();
@@ -111,6 +117,7 @@ namespace OpheliasOasis.src
                     break;
                 case CollectionChange.ItemInserted:
                     // Send back to db
+
                     break;
                 case CollectionChange.ItemRemoved:
 
@@ -124,13 +131,19 @@ namespace OpheliasOasis.src
             }
         }
 
+        // Can take a CustomerID, Reservation or Date Range
+        private void InsertIntoDB(object item) 
+        {
+            
+        }
+
         public IObservableMap<int, Reservation> GetReservations()
         {
             var currentDate = DateTime.Today;
-            var cmd         = String.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
+            var cmd         = string.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
             
             var reservations = new ObservableCollection<Reservation>();
-            var command      = new SqliteCommand(cmd, connection);
+            var command      = new SqliteCommand(cmd, Connection);
 
             try
             {
@@ -169,6 +182,35 @@ namespace OpheliasOasis.src
 
             return Reservations;
         }
-            
+
+        public IObservableMap<DateTime, double> GetPricePerDay()
+        {
+            var currentDate = DateTime.Today;
+            var cmd = string.Format("SELECT * FROM Reservations", currentDate.ToString(SQLTIME));
+
+            var priceList = new ObservableCollection<PricePerDay>();
+            var command = new SqliteCommand(cmd, Connection);
+
+            // TODO I expect this to error out
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        //TODO
+                        //DateTime date = DateTime.Parse(reader.GetString(1));
+
+                    }
+                }
+            }
+            catch (SqliteException e)
+            {
+                System.Console.Error.WriteLine(e.ToString());
+            }
+
+            return PriceLookup;
+        }
+
     }
 }
