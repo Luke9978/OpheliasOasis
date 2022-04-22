@@ -10,7 +10,11 @@
     d:DesignWidth="400">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Left" Margin="177,141,0,0" TextWrapping="Wrap" Text="Customer Lookup" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Customer Lookup" VerticalAlignment="Top"/>
+        <Button x:Name="EditReservationButton" Content="Edit Reservation" Margin="144,32,0,0" VerticalAlignment="Top" Height="30" Width="80" FontSize="8"/>
+        <Button x:Name="DeleteReservationButton" Content="Delete Reservation" Margin="229,32,0,0" VerticalAlignment="Top" Height="30" Width="90" FontSize="8"/>
+        <Button x:Name="PrintRecieptButton" Content="Print Reciept" Margin="325,32,0,0" VerticalAlignment="Top" Height="30" Width="65" FontSize="8"/>
+        <ComboBox x:Name="IdentifierComboBox" Margin="10,32,0,0" Width="129" Height="30"/>
 
     </Grid>
 </UserControl>
