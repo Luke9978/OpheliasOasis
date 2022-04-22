@@ -10,13 +10,13 @@
     d:DesignWidth="400">
 
     <Grid>
-        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Margin="0,37,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="DailyOccupancyButton" Content="Daily Occupancy" Margin="0,82,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="ExpectedOccupancyButton" Content="Expected Occupancy" Margin="0,128,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="ExpectedRoomIncomeButton" Content="Expected Room Income" Margin="0,173,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="IncentiveButton" Content="Incentive" Margin="0,218,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="PrintReportButton" Content="Print Report" Margin="240,263,0,0" VerticalAlignment="Top" Height="30" Width="150"/>
-        <TextBlock x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top"/>
+        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Click="DA_button" Background="Gray" Margin="0,37,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <TextBox x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top"/>
+        <Button x:Name="DailyOccupancyButton" Content="Daily Occupancy" Click="DO_button" Background="Gray" Margin="0,82,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="ExpectedOccupancyButton" Content="Expected Occupancy" Click="EO_button" Background="Gray" Margin="0,128,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="ExpectedRoomIncomeButton" Content="Expected Room Income" Click="ERI_button" Background="Gray" Margin="0,173,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="IncentiveButton" Content="Incentive" Click="I_button" Background="Gray" Margin="0,218,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="PrintReportButton" Content="Print Report" Click="Print_button" Margin="240,263,0,0" VerticalAlignment="Top" Height="30" Width="150"/>
 
     </Grid>
 </UserControl>
