@@ -31,7 +31,6 @@ namespace OpheliasOasis
         public MainPage()
         {
             this.InitializeComponent();
-            ContentFrame.Content = overviewPage;
         }
 
         private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

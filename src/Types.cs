@@ -36,28 +36,6 @@ namespace OpheliasOasis
         // Param: Set key to 0
         public void Add(int key, V value)
         {
-            key = _items.Max(t => t.Key) + 1;
-
-            // Avoid key collision
-            while (this.ContainsKey(key))
-            {
-                key++;
-            }
-
-            _items.Add(key, value);
-            TriggerEvent(CollectionChange.ItemInserted, key);
-        }
-
-        public void Add(V value)
-        {
-            int key = _items.Max(t => t.Key) + 1;
-
-            // Avoid key collision
-            while (this.ContainsKey(key))
-            {
-                key++;
-            }
-
             _items.Add(key, value);
             TriggerEvent(CollectionChange.ItemInserted, key);
         }
@@ -151,14 +129,27 @@ namespace OpheliasOasis
 
     public class ReservationMap : MapCallBack<Reservation>
     {
-        
+        public void Add(Reservation value)
+        {
+            int key = 0;
+
+            // Avoid key collision
+            while (this.ContainsKey(key))
+            {
+                key++;
+            }
+            
+            value.ReservationID = key;
+
+            Add(key, value);
+        }
     }
 
     public class Reservation : INotifyPropertyChanged
     {
         public int ReservationID { get; set; }
-        public string Type { get; set; }
-        public string Status { get; set; }
+        public ReservationType Type { get; set; }
+        public PaymentStatus Status { get; set; }
         
         public DateTime StartDate;
 
@@ -277,7 +268,20 @@ namespace OpheliasOasis
 
     public class CustomerIDMap : MapCallBack<Customer>
     {
-        
+        public void Add(Customer value)
+        {
+            int key = 0;
+
+            // Avoid key collision
+            while (this.ContainsKey(key))
+            {
+                key++;
+            }
+
+            value.Id = key;
+
+            Add(key, value);
+        }
     }
 
     public class Customer
@@ -298,20 +302,21 @@ namespace OpheliasOasis
         public string CardNumbers { get; set; }
     }
 
-    enum ReservationType
+    public enum ReservationType
     {
         Conventional,
         Prepaid,
-        
+        Incentive,
+        SixtyDays        
     }
 
-    enum PaymentStatus
+    public enum PaymentStatus
     {
         NotPaid,
         Paid
     }
 
-    enum reportType 
+    public enum reportType 
     {
         ExpectedOccupancy,
         ExpectedRoomIncome,

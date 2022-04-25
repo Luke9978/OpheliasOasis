@@ -136,7 +136,6 @@ namespace OpheliasOasis.src
                     break;
                 case CollectionChange.ItemRemoved:
                     throw new NotImplementedException();
-                    break;
                 case CollectionChange.ItemChanged:
                     InsertIntoDB(sender[@event.Key], true);
                     break;
@@ -164,7 +163,6 @@ namespace OpheliasOasis.src
                     break;
                 case CollectionChange.ItemRemoved:
                     throw new NotImplementedException();
-                    break;
                 case CollectionChange.ItemChanged:
                     InsertIntoDB(sender[@event.Key], true);
                     break;
@@ -191,7 +189,6 @@ namespace OpheliasOasis.src
                     break;
                 case CollectionChange.ItemRemoved:
                     throw new NotImplementedException();
-                    break;
                 case CollectionChange.ItemChanged:
                     InsertIntoDB(sender[@event.Key], true);
                     break;
@@ -232,9 +229,37 @@ namespace OpheliasOasis.src
 
                     command.CommandText = cmd;
                     command.Parameters.AddWithValue("@id", reservation.ReservationID);
-                    command.Parameters.AddWithValue("@type", reservation.Type);
+                    
+                    switch (reservation.Type)
+                    {
+                        case ReservationType.SixtyDays:
+                            command.Parameters.AddWithValue("@type", "SixtyDays");
+                            break;
+                        case ReservationType.Prepaid:
+                            command.Parameters.AddWithValue("@type", "Prepaid");
+                            break;
+                        case ReservationType.Conventional:
+                            command.Parameters.AddWithValue("@type", "Conventional");
+                            break;
+                        case ReservationType.Incentive:
+                            command.Parameters.AddWithValue("@type", "Incentive");
+                            break;
+                        default:
+                            break;
+                    }
+
                     command.Parameters.AddWithValue("@CustomerID", reservation.CustomerID);
-                    command.Parameters.AddWithValue("@Status", reservation.Status);
+                    switch (reservation.Status)
+                    {
+                        case PaymentStatus.NotPaid:
+                            command.Parameters.AddWithValue("@Status", "NotPaid");
+                            break;
+                        case PaymentStatus.Paid:
+                            command.Parameters.AddWithValue("@Status", "Paid");
+                            break;
+                        default:
+                            break;
+                    }
                     command.Parameters.AddWithValue("@ROOM_ID", reservation.RoomID);
                     command.Parameters.AddWithValue("@Prices", reservation.Prices.ToString());
                     command.Parameters.AddWithValue("@StartDate", reservation.StartDate.ToString());
@@ -292,6 +317,33 @@ namespace OpheliasOasis.src
             return result;
         }
 
+        private PaymentStatus prasePayment(string input)
+        {
+            PaymentStatus status = new PaymentStatus();
+            if (input == "NotPaid")
+            {
+                status = PaymentStatus.NotPaid;
+            }
+            else if (input == "Paid")
+            {
+                status = PaymentStatus.Paid;
+            }
+            return status;
+        }
+
+        private ReservationType praseType(string input)
+        {
+            ReservationType type = new ReservationType();
+
+            if (input == "Conventional") type = ReservationType.Conventional;
+            if (input == "Prepaid")      type = ReservationType.Prepaid;
+            if (input == "Incentive")    type = ReservationType.Incentive;
+            if (input == "SixtyDays")    type = ReservationType.SixtyDays;
+
+
+            return type;
+        }
+
         public IObservableMap<int, Reservation> GetReservations()
         {
             _run_event_handler = false;
@@ -311,9 +363,9 @@ namespace OpheliasOasis.src
                         reservations.Add(new Reservation
                         {
                             ReservationID = reader.GetInt32(0),
-                            Type          = reader.GetString(1),
+                            Type          = praseType(reader.GetString(1)),
                             CustomerID    = reader.GetInt32(2),
-                            Status        = reader.GetString(3),
+                            Status        = prasePayment(reader.GetString(3)),
                             RoomID        = reader.GetInt32(4),
                             Prices        = parseString(reader.GetString(5)),
                             StartDate     = DateTime.Parse(reader.GetString(6)),
