@@ -7,11 +7,11 @@ using Windows.Foundation.Collections;
 
 namespace OpheliasOasis
 {
-    public class ReservationMap : IObservableMap<int, Reservation>
+    public class MapCallBack<V> : IObservableMap<int, V>
     {
-        private readonly Dictionary<int, Reservation> _items;
+        private readonly Dictionary<int, V> _items;
 
-        public event MapChangedEventHandler<int, Reservation> MapChanged;
+        public event MapChangedEventHandler<int, V> MapChanged;
 
         private class MapChangeReason : IMapChangedEventArgs<int>
         {
@@ -28,36 +28,14 @@ namespace OpheliasOasis
             MapChanged.Invoke(this, aChangeEvent);
         }
 
-        public ReservationMap()
+        public MapCallBack()
         {
-            _items = new Dictionary<int, Reservation>();
+            _items = new Dictionary<int, V>();
         }
 
         // Param: Set key to 0
-        public void Add(int key, Reservation value)
+        public void Add(int key, V value)
         {
-            key = _items.Max(t => t.Key) + 1;
-
-            // Avoid key collision
-            while (this.ContainsKey(key))
-            {
-                key++;
-            }
-
-            _items.Add(key, value);
-            TriggerEvent(CollectionChange.ItemInserted, key);
-        }
-
-        public void Add(Reservation value)
-        {
-            int key = _items.Max(t => t.Key) + 1;
-
-            // Avoid key collision
-            while(this.ContainsKey(key))
-            {
-                key++;
-            }
-
             _items.Add(key, value);
             TriggerEvent(CollectionChange.ItemInserted, key);
         }
@@ -73,23 +51,26 @@ namespace OpheliasOasis
             return (_items.Remove(key));
         }
 
-        public bool TryGetValue(int key, out Reservation value)
+        public bool TryGetValue(int key, out V value)
         {
             return _items.TryGetValue(key, out value);
         }
 
-        public Reservation this[int key] { get => _items[key];
+        public V this[int key]
+        {
+            get => _items[key];
             set
             {
                 _items[key] = value;
                 TriggerEvent(CollectionChange.ItemChanged, key);
-            } }
+            }
+        }
 
         public ICollection<int> Keys => _items.Keys.ToList();
 
-        public ICollection<Reservation> Values => _items.Values.ToList();
+        public ICollection<V> Values => _items.Values.ToList();
 
-        public void Add(KeyValuePair<int, Reservation> item)
+        public void Add(KeyValuePair<int, V> item)
         {
             TriggerEvent(CollectionChange.ItemInserted, item.Key);
             _items.Add(item.Key, item.Value);
@@ -101,15 +82,17 @@ namespace OpheliasOasis
             _items.Clear();
         }
 
-        public bool Contains(KeyValuePair<int, Reservation> item)
+        public bool Contains(KeyValuePair<int, V> item)
         {
-            if (!_items.ContainsKey((int)item.Key))
+            if (!_items.ContainsKey(item.Key))
             {
                 return false;
             }
 
-            var res = _items[item.Key];
-            if (res == null || res != item.Value)
+            var res   = _items[item.Key];
+            var _comp = item.Value;
+            // Wut?
+            if (res == null)// || res != _comp)
             {
                 return false;
             }
@@ -117,12 +100,8 @@ namespace OpheliasOasis
             return true;
         }
 
-        public void CopyTo(KeyValuePair<int, Reservation>[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool Remove(KeyValuePair<int, Reservation> item)
+        public bool Remove(KeyValuePair<int, V> item)
         {
             TriggerEvent(CollectionChange.ItemRemoved, item.Key);
             return (_items.Remove(item.Key));
@@ -130,9 +109,9 @@ namespace OpheliasOasis
 
         public int Count => _items.Count();
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly => throw new NotImplementedException();
 
-        public IEnumerator<KeyValuePair<int, Reservation>> GetEnumerator()
+        public IEnumerator<KeyValuePair<int, V>> GetEnumerator()
         {
             return _items.GetEnumerator();
         }
@@ -141,19 +120,44 @@ namespace OpheliasOasis
         {
             return GetEnumerator();
         }
+
+        public void CopyTo(KeyValuePair<int, V>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ReservationMap : MapCallBack<Reservation>
+    {
+        public void Add(Reservation value)
+        {
+            int key = 0;
+
+            // Avoid key collision
+            while (this.ContainsKey(key))
+            {
+                key++;
+            }
+            
+            value.ReservationID = key;
+
+            Add(key, value);
+        }
     }
 
     public class Reservation : INotifyPropertyChanged
     {
-        public int id { get; set; }
-        public string type { get; set; }
-        public string status { get; set; }
-        public int paid { get; set; }
-        public DateTime startDate;
-        public DateTime endDate;
-        public IDictionary<DateTime, float> pricePerDay { get; set; }
-        public int CustomerId { get; set; }
-        public int RoomId { get; set; }
+        public int ReservationID { get; set; }
+        public ReservationType Type { get; set; }
+        public PaymentStatus Status { get; set; }
+        
+        public DateTime StartDate;
+
+        public DateTime EndDate;
+
+        public List<double> Prices;
+        public int CustomerID { get; set; }
+        public int RoomID { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
@@ -262,7 +266,57 @@ namespace OpheliasOasis
         }
     }
 
-    enum reportType 
+    public class CustomerIDMap : MapCallBack<Customer>
+    {
+        public void Add(Customer value)
+        {
+            int key = 0;
+
+            // Avoid key collision
+            while (this.ContainsKey(key))
+            {
+                key++;
+            }
+
+            value.Id = key;
+
+            Add(key, value);
+        }
+    }
+
+    public class Customer
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public int ReservationID { get; set; }
+        public CreditCard CardOnFile { get; set; }
+    }
+
+    public class CreditCard
+    {
+        public string Name { get; set; }
+        public string ExpirationDate { get; set; }
+        public string CardNumbers { get; set; }
+    }
+
+    public enum ReservationType
+    {
+        Conventional,
+        Prepaid,
+        Incentive,
+        SixtyDays        
+    }
+
+    public enum PaymentStatus
+    {
+        NotPaid,
+        Paid
+    }
+
+    public enum reportType 
     {
         ExpectedOccupancy,
         ExpectedRoomIncome,
