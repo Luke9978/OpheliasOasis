@@ -36,9 +36,18 @@ namespace OpheliasOasis
         // Param: Set key to 0
         public void Add(int key, V value)
         {
+            key = 0;
+
+            // Avoid key collision
+            while (this.ContainsKey(key))
+            {
+                key++;
+            }
+
             _items.Add(key, value);
             TriggerEvent(CollectionChange.ItemInserted, key);
         }
+
 
         public bool ContainsKey(int key)
         {

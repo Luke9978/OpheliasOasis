@@ -6,6 +6,7 @@ using Windows.Storage;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Windows.Foundation.Collections;
 
 
 
@@ -19,8 +20,14 @@ namespace OpheliasOasis
         SolidColorBrush selected = new SolidColorBrush(Windows.UI.Colors.DarkGreen);
         SolidColorBrush not_selected = new SolidColorBrush(Windows.UI.Colors.Gray);
 
+        IObservableMap<int, Reservation> resv;      // reservation
+        IObservableMap<int, Customer> cust;     // customer
+        IObservableMap<DateTime, double> ppd; // price per day
+
         List<Button> buttons = new List<Button>();      // list will contain all the report buttons
         int lastButton = 0;                             // number 0-4 and contains the most recent button clicked
+        Boolean file_selected = false;                  // false if the .txt file hasn't been selected yet, true if selected
+        StorageFile file;                               // the file that will contain the report data
 
         public ReportsPage()
         {
@@ -75,48 +82,71 @@ namespace OpheliasOasis
 
         public async Task AddText()
         {
-
-            // This will bring up the File Explorer, user needs to Select .txt file
-            var pick = new Windows.Storage.Pickers.FileOpenPicker
+            if (file_selected == false)
             {
-                // we want thumbnail viewing mode and also to start in the Documents Library
+                // This will bring up the File Explorer, user needs to Select .txt file
+                var pick = new Windows.Storage.Pickers.FileOpenPicker
+                {
+                    // we want thumbnail viewing mode and also to start in the Documents Library
 
-                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
-            };
-            pick.FileTypeFilter.Add(".txt");        // looking for a .txt file
+                    ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
+                };
+                pick.FileTypeFilter.Add(".txt");        // looking for a .txt file
 
-            StorageFile file = await pick.PickSingleFileAsync();
+                file = await pick.PickSingleFileAsync();
+                if (file == null)
+                {
+                    // tell the label that a file was not selected
+                    return;
+                }
+                file_selected = true;
+
+            }
+
             
             if(lastButton == 0)
             {
-                await FileIO.WriteTextAsync(file, "Daily Arrivals Report");
+                await FileIO.WriteTextAsync(file, "Daily Arrivals Report\n");
+                foreach (var item in resv)
+                {
+                    string s = "ew";// item.Value;
+                    await FileIO.AppendTextAsync(file, s);
+                }
+                
             }
 
 
             else if(lastButton == 1)
             {
-                await FileIO.WriteTextAsync(file, "Daily Occupancy Report");
+                await FileIO.WriteTextAsync(file, "Daily Occupancy Report\n");
             }
 
 
             else if(lastButton == 2)
             {
-                await FileIO.WriteTextAsync(file, "Expected Occupancy Report");
+                await FileIO.WriteTextAsync(file, "Expected Occupancy Report\n");
             }
 
 
             else if(lastButton == 3)
             {
-                await FileIO.WriteTextAsync(file, "Expected Room Income Report");
+                await FileIO.WriteTextAsync(file, "Expected Room Income Report\n");
             }
 
 
             else if(lastButton == 4)
             {
-                await FileIO.WriteTextAsync(file, "Incentive Report");
+                await FileIO.WriteTextAsync(file, "Incentive Report\n");
             }
 
+        }
+
+        public void setDB(src.DatabaseManager database)
+        {
+            resv = database.GetReservations();
+            cust = database.GetCustomers();
+            ppd = database.GetPricePerDay();
         }
     }
 }
