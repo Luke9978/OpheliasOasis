@@ -10,7 +10,7 @@
     d:DesignWidth="400">
 
     <Grid>
-        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Click="DA_button" Background="Gray" Margin="0,37,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Click="DA_button" Background="DarkGreen" Margin="0,37,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
         <TextBox x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top"/>
         <Button x:Name="DailyOccupancyButton" Content="Daily Occupancy" Click="DO_button" Background="Gray" Margin="0,82,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
         <Button x:Name="ExpectedOccupancyButton" Content="Expected Occupancy" Click="EO_button" Background="Gray" Margin="0,128,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
