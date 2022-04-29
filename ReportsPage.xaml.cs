@@ -29,6 +29,7 @@ namespace OpheliasOasis
         int lastButton = 0;                             // number 0-4 and contains the most recent button clicked
         Boolean file_selected = false;                  // false if the .txt file hasn't been selected yet, true if selected
         StorageFile file;                               // the file that will contain the report data
+        bool isManager;
 
         public ReportsPage()
         {
@@ -39,7 +40,12 @@ namespace OpheliasOasis
             buttons.Add(ExpectedRoomIncomeButton);
             buttons.Add(IncentiveButton);
         }
-        
+
+        //public void setIsManagerVisible(bool isManager)
+        //{
+        //    this.isManager = isManager;
+        //}
+
 
         void DA_button(object sender, RoutedEventArgs e)        // Daily Arrivals Button
         {

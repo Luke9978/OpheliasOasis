@@ -6,16 +6,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="960"
+    d:DesignWidth="1500">
 
-    <Grid>
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Customer Lookup" VerticalAlignment="Top"/>
-        <Button x:Name="EditReservationButton" Content="Edit Reservation" Margin="144,32,0,0" VerticalAlignment="Top" Height="30" Width="80" FontSize="8"/>
-        <Button x:Name="DeleteReservationButton" Content="Delete Reservation" Margin="229,32,0,0" VerticalAlignment="Top" Height="30" Width="90" FontSize="8"/>
-        <Button x:Name="PrintRecieptButton" Content="Print Reciept" Margin="325,32,0,0" VerticalAlignment="Top" Height="30" Width="65" FontSize="8"/>
-        <ComboBox x:Name="IdentifierComboBox" Margin="10,32,0,0" Width="129" Height="30"/>
-        <ListView x:Name="SearchResults" Margin="10,67,10,10"/>
+    <Grid Margin="0,0,0,0">
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Customer Lookup" VerticalAlignment="Top" FontSize="24"/>
+        <ListView x:Name="SearchResults" Margin="10,155,695,10"/>
+        <TextBox x:Name="FirstNameBox" HorizontalAlignment="Left" Margin="10,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="40" Width="200" PlaceholderText="First Name"/>
+        <TextBox x:Name="LastNameBox" HorizontalAlignment="Left" Margin="215,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="40" Width="200" PlaceholderText="Last Name"/>
+        <TextBox x:Name="PhoneNumberBox" HorizontalAlignment="Left" Margin="420,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="40" Width="200" PlaceholderText="Phone #"/>
+        <Button x:Name="LookupCustomerButton" Content="Lookup Customer" Margin="636,59,0,0" VerticalAlignment="Top" Height="40" Width="200" FontSize="14"/>
+        <StackPanel Margin="840,155,10,10">
+            <Button x:Name="EditReservationButton" Content="Edit Reservation" Height="40" Width="200" FontSize="14"/>
+            <Button x:Name="DeleteReservationButton" Content="Delete Reservation" Height="40" Width="200" FontSize="14"/>
+            <Button x:Name="CheckInButton" Content="Check In" Height="40" Width="200" FontSize="14"/>
+            <Button x:Name="CheckOutButton" Content="Checkout" Height="40" Width="200" FontSize="14"/>
+            <Button x:Name="AddCreditCardButton" Content="Add Credit Card" Height="40" Width="200" FontSize="14"/>
+        </StackPanel>
 
     </Grid>
 </UserControl>

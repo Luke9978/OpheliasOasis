@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -35,14 +36,62 @@ namespace OpheliasOasis
         {
 
         }
+
+        private void CalendarView_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
+        {
+            var res_start_today = from item in resv.Values where item.StartDate.Date == DateTime.Now.Date select item;
+            // Render basic day items.
+            if (args.Phase == 0)
+            {
+                // Register callback for next phase.
+                args.RegisterUpdateCallback(CalendarView_CalendarViewDayItemChanging);
+            }
+            // Set blackout dates.
+            else if (args.Phase == 1)
+            {
+                // Blackout dates in the past and dates that are fully booked.
+                if (args.Item.Date < DateTimeOffset.Now ||
+                    res_start_today.Count() == 45)
+                {
+                    args.Item.IsBlackout = true;
+                }
+                // Register callback for next phase.
+                args.RegisterUpdateCallback(CalendarView_CalendarViewDayItemChanging);
+            }
+            // Set density bars.
+            else if (args.Phase == 2)
+            {
+                // You don't need to set bars on past dates.
+                if (args.Item.Date >= DateTimeOffset.Now)
+                {
+                    List<Color> densityColors = new List<Color>();
+                    // Set a density bar color for each of the days bookings.
+                    // It's assumed that there can't be more than 45 bookings in a day. Otherwise,
+                    // further processing is needed to fit within the max of 10 density bars.
+                    if (res_start_today.Count() <= 22)
+                    {
+                        densityColors.Add(Colors.Green);
+                    }
+                    else if (res_start_today.Count() < 45)
+                    {
+                        densityColors.Add(Colors.Yellow);
+                    }
+                    else if (res_start_today.Count() == 45)
+                    {
+                        densityColors.Add(Colors.Red);
+                    }
+                    args.Item.SetDensityColors(densityColors);
+                }
+            }
+        }
         private void StartDateButton_Click(object sender, RoutedEventArgs e)
         {
             // No Date is selected
             if (MainCalendar.SelectedDates.Count == 0)
             { ErrorMessage.Text = "Please select a start date"; ErrorMessage.Visibility = Visibility.Visible; }
 
-            // Date selected is either today or in the past
-            else if(MainCalendar.SelectedDates[0].Date <= DateTime.Now.Date)
+            // Date selected is in the past
+            else if(MainCalendar.SelectedDates[0].Date < DateTime.Now.Date)
             { ErrorMessage.Text = "Please select a legal start date"; ErrorMessage.Visibility = Visibility.Visible; }
 
             // Valid start date
@@ -91,6 +140,7 @@ namespace OpheliasOasis
 
             // if we are booked, then don't let this be visible -- needs to be inserted
             ReservationFields.Visibility = Visibility.Visible;
+            ReservationTypeDropdown.SelectedIndex = 0;
 
             // also need to calculate which reservations are available with the given dates... not sure how we can use the combobox.
             // Can we make items in the dropdown invisible?
@@ -212,7 +262,18 @@ namespace OpheliasOasis
 
                 // This is for displaying the total price of the hotel stay
                 double total = 0;
-                for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))  {total += ppd[s.Date]*discount;}
+                for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))  
+                {
+                    try
+                    {
+                        total += ppd[s.Date]*discount;
+                    } catch(KeyNotFoundException) 
+                    {
+                        ErrorMessage.Visibility = Visibility.Visible;
+                        ErrorMessage.Text = $"Date selected does not have a rate. Date: {s.Date.ToString()}";
+                        ConfirmReservationButton.IsEnabled = false;
+                    }
+                }
                 TotalAmountLabel.Text = "$" + total;
             }
             

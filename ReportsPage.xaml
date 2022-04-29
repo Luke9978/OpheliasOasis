@@ -6,20 +6,21 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="487"
-    d:DesignWidth="715">
+    d:DesignHeight="960"
+    d:DesignWidth="1500">
 
-    <Grid>
-        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Click="DA_button" Background="DarkGreen" Margin="0,37,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="DailyOccupancyButton" Content="Daily Occupancy" Click="DO_button" Background="Gray" Margin="0,82,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="ExpectedOccupancyButton" Content="Expected Occupancy" Click="EO_button" Background="Gray" Margin="0,128,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="ExpectedRoomIncomeButton" Content="Expected Room Income" Click="ERI_button" Background="Gray" Margin="0,173,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="IncentiveButton" Content="Incentive" Click="I_button" Background="Gray" Margin="0,218,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
-        <Button x:Name="PrintReportButton" Content="Print Report" Click="Print_button" Margin="547,305,0,0" VerticalAlignment="Top" Height="30" Width="150"/>
-        <TextBlock x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top" Height="23" Width="82" TextAlignment="Center"/>
-        <TextBlock x:Name="PrintMessage" HorizontalAlignment="Left" Margin="547,335,0,0" TextWrapping="Wrap" Text="  " VerticalAlignment="Top" Height="33" Width="149" TextAlignment="Center"/>
-        <Button x:Name="SendEmailButton" Content="Email" Click="Print_button" Margin="381,305,0,0" VerticalAlignment="Top" Height="30" Width="150"/>
-        <TextBlock x:Name="EmailMessage" HorizontalAlignment="Left" Margin="381,335,0,0" TextWrapping="Wrap" Text="  " VerticalAlignment="Top" Height="33" Width="149" TextAlignment="Center"/>
+    <Grid Margin="0,0,0,0">
+        <Button x:Name="DailyArrivalsButton" Content="Daily Arrivals" Click="DA_button" Background="DarkGreen" Margin="0,60,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="DailyOccupancyButton" Content="Daily Occupancy" Click="DO_button" Background="Gray" Margin="0,105,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="ExpectedOccupancyButton" Content="Expected Occupancy" Click="EO_button" Background="Gray" Margin="0,150,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="ExpectedRoomIncomeButton" Content="Expected Room Income" Click="ERI_button" Background="Gray" Margin="0,195,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="IncentiveButton" Content="Incentive" Click="I_button" Background="Gray" Margin="0,240,0,0" VerticalAlignment="Top" Height="40" Width="200" HorizontalAlignment="Center"/>
+        <Button x:Name="PrintReportButton" Content="Print Report" Click="Print_button" Margin="755,305,0,0" VerticalAlignment="Top" Height="40" Width="200"/>
+        <TextBlock x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top" TextAlignment="Center" FontSize="24" Height="32.1"/>
+        <TextBlock x:Name="PrintMessage" HorizontalAlignment="Left" Margin="547,335,0,0" TextWrapping="Wrap" Text="Print Successful" VerticalAlignment="Top" Height="33" Width="149" TextAlignment="Center" Visibility="Collapsed"/>
+        <Button x:Name="SendEmailButton" Content="Email" Click="Print_button" Margin="550,305,0,0" VerticalAlignment="Top" Height="40" Width="200"/>
+        <TextBlock x:Name="EmailMessage" HorizontalAlignment="Left" Margin="381,335,0,0" TextWrapping="Wrap" Text="Email Sent Successfully" VerticalAlignment="Top" Height="33" Width="149" TextAlignment="Center" Visibility="Collapsed"/>
+
 
     </Grid>
 </UserControl>
