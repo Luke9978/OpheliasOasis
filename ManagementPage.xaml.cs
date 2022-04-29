@@ -6,6 +6,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -58,15 +60,31 @@ namespace OpheliasOasis
             }
             listBox.Text = prices;
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button).Name == "LoadDB")
             {
-                
+                FileOpenPicker openPicker = new FileOpenPicker();
+                openPicker.ViewMode = PickerViewMode.List;
+                openPicker.FileTypeFilter.Add(".db");
+
+                StorageFile file = await openPicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    await DatabaseManager.LoadDBAsync(file);
+                }
             }
             if ((sender as Button).Name == "SaveDB")
             {
+                var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+                savePicker.FileTypeChoices.Add("SQL Database", new List<string>() { ".db" });
+                savePicker.SuggestedFileName = "Database" + DateTime.Now.ToString("_yyyy_MM_dd") + ".db";
+                var file = await savePicker.PickSaveFileAsync();
 
+                if (file != null)
+                {
+                    await DatabaseManager.SaveDBAsync(file);
+                }
             }
         }
 
