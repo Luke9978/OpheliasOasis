@@ -322,7 +322,8 @@ namespace OpheliasOasis
     public enum PaymentStatus
     {
         NotPaid,
-        Paid
+        Paid,
+        Cancled
     }
 
     public enum reportType 
