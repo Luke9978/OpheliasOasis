@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,21 +23,69 @@ namespace OpheliasOasis
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        src.DatabaseManager dataBase = new src.DatabaseManager();
-        OverviewPage overviewPage = new OverviewPage();
-        CustomerLookupPage customerLookupPage = new CustomerLookupPage();
-        ReportsPage reportsPage = new ReportsPage();
-        ManagementPage managementPage = new ManagementPage();
+        src.DatabaseManager dataBase           = new src.DatabaseManager();
+        OverviewPage        overviewPage       = new OverviewPage();
+        CustomerLookupPage  customerLookupPage = new CustomerLookupPage();
+        ReportsPage         reportsPage        = new ReportsPage();
+        ManagementPage      managementPage     = new ManagementPage();
 
         bool emp;
 
         public MainPage()
         {
             this.InitializeComponent();
+            PasswordBox.KeyDown += PasswordBox_KeyDown;
             overviewPage.setDB(dataBase);
             customerLookupPage.setDB(dataBase);
             reportsPage.setDB(dataBase);
             managementPage.SetDatabase(dataBase);
+        }
+
+        private void PasswordBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                logIn();
+            }
+        }
+
+        private void logIn()
+        {
+            if (PasswordBox.Text == "man")
+            {
+                Login.Visibility = Visibility.Collapsed;
+                Login.IsEnabled = false;
+                Logout.Visibility = Visibility.Visible;
+                Logout.IsEnabled = true;
+                Overview.Visibility = Visibility.Visible;
+                Overview.IsEnabled = true;
+                CustomerLookup.Visibility = Visibility.Visible;
+                CustomerLookup.IsEnabled = true;
+                Reports.Visibility = Visibility.Visible;
+                Reports.IsEnabled = true;
+                Management.Visibility = Visibility.Visible;
+                Management.IsEnabled = true;
+                ContentFrame.Content = overviewPage;
+                emp = false;
+            }
+            else if (PasswordBox.Text == "emp")
+            {
+
+                Login.Visibility = Visibility.Collapsed;
+                Login.IsEnabled = false;
+                Logout.Visibility = Visibility.Visible;
+                Logout.IsEnabled = true;
+                Overview.Visibility = Visibility.Visible;
+                Overview.IsEnabled = true;
+                CustomerLookup.Visibility = Visibility.Visible;
+                CustomerLookup.IsEnabled = true;
+                Reports.Visibility = Visibility.Visible;
+                Reports.IsEnabled = true;
+                Management.Visibility = Visibility.Collapsed;
+                Management.IsEnabled = false;
+                ContentFrame.Content = overviewPage;
+                emp = true;
+            }
         }
 
         public void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -58,41 +107,7 @@ namespace OpheliasOasis
                     ContentFrame.Content = managementPage;
                     break;
                 case "Login":
-                    if (PasswordBox.Text == "man")
-                    {
-                        Login.Visibility = Visibility.Collapsed;
-                        Login.IsEnabled = false;
-                        Logout.Visibility = Visibility.Visible;
-                        Logout.IsEnabled = true;
-                        Overview.Visibility = Visibility.Visible;
-                        Overview.IsEnabled = true;
-                        CustomerLookup.Visibility = Visibility.Visible;
-                        CustomerLookup.IsEnabled = true;
-                        Reports.Visibility = Visibility.Visible;
-                        Reports.IsEnabled = true;
-                        Management.Visibility = Visibility.Visible;
-                        Management.IsEnabled = true;
-                        ContentFrame.Content = overviewPage;
-                        emp = false;
-                    }
-                    else if (PasswordBox.Text == "emp")
-                    {
-
-                        Login.Visibility = Visibility.Collapsed;
-                        Login.IsEnabled = false;
-                        Logout.Visibility = Visibility.Visible;
-                        Logout.IsEnabled = true;
-                        Overview.Visibility = Visibility.Visible;
-                        Overview.IsEnabled = true;
-                        CustomerLookup.Visibility = Visibility.Visible;
-                        CustomerLookup.IsEnabled = true;
-                        Reports.Visibility = Visibility.Visible;
-                        Reports.IsEnabled = true;
-                        Management.Visibility = Visibility.Collapsed;
-                        Management.IsEnabled = false;
-                        ContentFrame.Content = overviewPage;
-                        emp = true;
-                    }
+                    logIn();
                     break;
                 case "Logout":
                     Logout.Visibility = Visibility.Collapsed;
@@ -108,15 +123,9 @@ namespace OpheliasOasis
                     Management.Visibility = Visibility.Collapsed;
                     Management.IsEnabled = false;
                     ContentFrame.Content = null;
-                    System.Environment.Exit(0);
+                    CoreApplication.Exit();
                     break;
             }
         }
-
-        private void PasswordBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
     }
 }

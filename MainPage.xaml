@@ -20,7 +20,7 @@
                 <NavigationViewItem Content="Management" x:Name="Management" IsEnabled="False" Visibility="Collapsed"/>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame">
-                <TextBox x:Name="PasswordBox" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" Height="50" Width="150" TextAlignment="Center" TextChanged="PasswordBox_TextChanged" PlaceholderText="Password"/>
+                <TextBox x:Name="PasswordBox" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" Height="50" Width="150" TextAlignment="Center" PlaceholderText="Password" AcceptsReturn="False"/>
             </Frame>
         </NavigationView>
 
