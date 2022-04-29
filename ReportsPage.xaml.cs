@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Windows.Foundation.Collections;
 using System.Linq;
+using System.Collections;
 
 
 
@@ -21,9 +22,8 @@ namespace OpheliasOasis
         SolidColorBrush selected = new SolidColorBrush(Windows.UI.Colors.DarkGreen);
         SolidColorBrush not_selected = new SolidColorBrush(Windows.UI.Colors.Gray);
 
-        IObservableMap<int, Reservation> resv;      // reservation
-        IObservableMap<int, Customer> cust;     // customer
-        //IObservableMap<DateTime, double> ppd; // price per day
+        ReservationMap resv;      // reservation
+        CustomerIDMap cust;     // customer
 
         List<Button> buttons = new List<Button>();      // list will contain all the report buttons
         int lastButton = 0;                             // number 0-4 and contains the most recent button clicked
@@ -102,9 +102,9 @@ namespace OpheliasOasis
                 pick.FileTypeFilter.Add(".txt");        // looking for a .txt file
 
                 file = await pick.PickSingleFileAsync();
-                if (file == null)
+                if (file == null || !file.DisplayName.Equals("Report"))
                 {
-                    // tell the label that a file was not selected
+                    PrintMessage.Text = "Select Correct File";
                     return;
                 }
                 file_selected = true;
@@ -119,14 +119,15 @@ namespace OpheliasOasis
                 await FileIO.AppendTextAsync(file, "------------------------------------------------------------------------------------------\n\n");
 
                 var res_start_today = from item in resv.Values where item.StartDate.Date == DateTime.Now.Date select item;
-                var cust_ordered = from item in cust.Values orderby item.LastName select item;
+                //var customerF = from item in cust.Values orderby item.LastName select item;
 
                 foreach (var i in res_start_today)
                 {
-                    var customerF = from j in cust.Values where j.Id == i.CustomerID select j;      // Customer Found using this Query
-                    await FileIO.AppendTextAsync(file, customerF.First().LastName + ", " + customerF.First().FirstName + "          " + i.Type + "          " + i.RoomID + "           " + i.EndDate + "\n");
+                    var customerF = from j in cust.Values where j.Id == i.CustomerID select (j.LastName, j.FirstName);      // Customer Found using this Query
+                    await FileIO.AppendTextAsync(file, customerF.First().LastName + ", " + customerF.First().FirstName + "\t\t\t\t" + i.Type + "\t\t\t\t" + i.RoomID + "\t\t\t\t" + i.EndDate + "\n");
                 }
 
+                PrintMessage.Text = "Successful Print";
             }
 
 
@@ -142,31 +143,29 @@ namespace OpheliasOasis
                 {
                     var customerF = from j in cust.Values where j.Id == i.CustomerID select j;
                     if (i.EndDate.Day == DateTime.Now.Day)
-                        await FileIO.AppendTextAsync(file, i.RoomID + "           " + customerF.First().LastName + ", " + customerF.First().FirstName + "           " + "*\n");
+                        await FileIO.AppendTextAsync(file, i.RoomID + "\t\t\t\t" + customerF.First().LastName + ", " + customerF.First().FirstName + "\t\t\t\t" + "*\n");
                     else
-                        await FileIO.AppendTextAsync(file, i.RoomID + "           " + customerF.First().LastName + ", " + customerF.First().FirstName + "           " + i.EndDate + "\n");
+                        await FileIO.AppendTextAsync(file, i.RoomID + "\t\t\t\t" + customerF.First().LastName + ", " + customerF.First().FirstName + "\t\t\t\t" + i.EndDate + "\n");
                 }
-
+                PrintMessage.Text = "Successful Print";
             }
 
 
             else if(lastButton == 2)
             {
                 await FileIO.WriteTextAsync(file, "Expected Occupancy Report\nDate: " + DateTime.Now + "\n\n");
-                await FileIO.AppendTextAsync(file, "Date            Prepaid            60-day          Conventional            Incentive           Total\n");
-                await FileIO.AppendTextAsync(file, "----------------------------------------------------------------------------------------------------\n\n");
+                await FileIO.AppendTextAsync(file, "Date                        Prepaid            60-day          Conventional            Incentive           Total\n");
+                await FileIO.AppendTextAsync(file, "----------------------------------------------------------------------------------------------------------------\n\n");
 
                 DateTime thirty = DateTime.Now.Date.AddDays(30);
 
-                var resF = from item in resv.Values where ((item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+                var resF = from item in resv.Values where ((item.StartDate.Date >= DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
 
-                int[] total = new int[120];
+                int[,] resTotals = new int[4,30];
 
-                int hi = 0;
 
                 foreach (var i in resF)
                 {
-                    hi++;
                     int difference = i.StartDate.Subtract(DateTime.Now.Date).Days;
 
                     foreach (var j in i.Prices)
@@ -177,40 +176,40 @@ namespace OpheliasOasis
                         else if (difference < 30)
                         {
                             if (i.Type == ReservationType.Prepaid)
-                                total[difference * 4]++;
+                                resTotals[0,difference]++;
                             else if (i.Type == ReservationType.SixtyDays)
-                                total[difference * 4 + 1]++;
+                                resTotals[1,difference]++;
                             else if (i.Type == ReservationType.Conventional)
-                                total[difference * 4 + 2]++;
+                                resTotals[2,difference]++;
                             else if (i.Type == ReservationType.Incentive)
-                                total[difference * 4 + 3]++;
+                                resTotals[3,difference]++;
 
                             difference++;
                         }
                     }
                 }
                 double tot = 0;
-                for (int i = 1; i <= 120 ; i+=4)
+                for (int i = 0; i< 30; i++)
                 {
-                    int t = total[i - 1] + total[i] + total[i + 1] + total[i + 2];
-                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays((i-1)/4) + "         " + total[i-1] + "            " + total[i] + "            " + total[i+1] + "            " + total[i+2] + "            "+ hi+"\n");
+                    int t = resTotals[0,i]+ resTotals[1, i]+ resTotals[2, i]+ resTotals[3, i];
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "\t\t\t\t" + resTotals[0,i] + "\t\t\t\t" + resTotals[1, i] + "\t\t\t\t" + resTotals[2, i] + "\t\t\t\t" + resTotals[3, i] + "\t\t\t\t" + t + "\n");
                     tot += t;
                 }
-                await FileIO.AppendTextAsync(file, "Average Expected Occupancy Rate:  " + tot / 30);
+                await FileIO.AppendTextAsync(file, "Average Expected Occupancy Rate:  " + (tot / 30).ToString("0.00"));
 
-
+                PrintMessage.Text = "Successful Print";
             }
 
 
             else if(lastButton == 3)
             {
                 await FileIO.WriteTextAsync(file, "Expected Room Income Report\nDate: " + DateTime.Now + "\n\n");
-                await FileIO.AppendTextAsync(file, "Date                    Income\n");
-                await FileIO.AppendTextAsync(file, "------------------------------\n\n");
+                await FileIO.AppendTextAsync(file, "Date                                 Income\n");
+                await FileIO.AppendTextAsync(file, "-------------------------------------------\n\n");
 
                 DateTime thirty = DateTime.Now.Date.AddDays(30);
 
-                var resF = from item in resv.Values where ((item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+                var resF = from item in resv.Values where ((item.StartDate.Date >= DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
 
                 double[] total = new double[30];
 
@@ -232,12 +231,13 @@ namespace OpheliasOasis
                 double tot = 0;
                 for(int i =0; i < 30; i++)
                 {
-                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "                 " + total[i] + "\n");
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "\t\t\t\t $" + (total[i]).ToString("0.00") + "\n");
                     tot += total[i];
                 }
-                await FileIO.AppendTextAsync(file, "Total Income:  $" + tot + "\n");
-                await FileIO.AppendTextAsync(file, "Average Income:  $" + tot / 30);
+                await FileIO.AppendTextAsync(file, "Total Income:  $" + (tot).ToString("0.00") + "\n");
+                await FileIO.AppendTextAsync(file, "Average Income:  $" + (tot / 30).ToString("0.00"));
 
+                PrintMessage.Text = "Successful Print";
             }
 
 
@@ -249,7 +249,7 @@ namespace OpheliasOasis
 
                 DateTime thirty = DateTime.Now.Date.AddDays(30);
 
-                var resF = from item in resv.Values where ((item.Type.Equals(ReservationType.Incentive) && (item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty)) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+                var resF = from item in resv.Values where (item.Type == ReservationType.Incentive) && ((item.StartDate.Date >= DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
 
                 double[] total = new double[30];
 
@@ -271,11 +271,13 @@ namespace OpheliasOasis
                 double tot = 0;
                 for(int i=0; i<30; i++)
                 {
-                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "             " + total[i] + "\n");
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "             " + (total[i]).ToString("0.00") + "\n");
                     tot += total[i];
                 }
-                await FileIO.AppendTextAsync(file, "Total Incentive Discount:  $" + tot + "\n");
-                await FileIO.AppendTextAsync(file, "Average Incentive Discount:  $" + tot / 30);
+                await FileIO.AppendTextAsync(file, "Total Incentive Discount:  $" + (tot).ToString("0.00") + "\n");
+                await FileIO.AppendTextAsync(file, "Average Incentive Discount:  $" + (tot / 30).ToString("0.00"));
+
+                PrintMessage.Text = "Successful Print";
             }
 
         }
@@ -288,7 +290,6 @@ namespace OpheliasOasis
         {
             resv = database.GetReservations();
             cust = database.GetCustomers();
-            //ppd = database.GetPricePerDay();
         }
     }
 }
