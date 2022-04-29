@@ -21,9 +21,9 @@ namespace OpheliasOasis
     {
 
         DateTime start, end;
-        IObservableMap<int, Reservation> resv;      // reservation
-        IObservableMap<int, Customer> cust;     // customer
-        IObservableMap<DateTime, double> ppd; // price per day
+        ReservationMap resv;      // reservation
+        CustomerIDMap cust;     // customer
+        PricePerDay ppd; // price per day
 
 
         public OverviewPage()
@@ -49,12 +49,12 @@ namespace OpheliasOasis
             else
             {
                 ErrorMessage.Visibility = Visibility.Collapsed;     // just in case it's visible
+                ReservationFields.Visibility = Visibility.Collapsed;    // so they can't make a reservation with invalid dates *Check
                 start = MainCalendar.SelectedDates[0].Date;
                 EndDateButton.IsEnabled = true;
                 StartDateLabel.Text = start.ToShortDateString();
                 end = DateTime.Now;                                 // just in case it had a previous value
                 EndDateLabel.Text = "End Date";                     // ^
-                ReservationFields.Visibility = Visibility.Collapsed;    // so they can't make a reservation with invalid dates *Check
             }
         }
 
@@ -71,11 +71,11 @@ namespace OpheliasOasis
             // Valid start date (for the most part)
             else
             {
-                end = MainCalendar.SelectedDates[0].Date;
                 ErrorMessage.Visibility = Visibility.Collapsed;
-                CreateReservationButton.IsEnabled = true;
+                end = MainCalendar.SelectedDates[0].Date;
                 EndDateLabel.Text = end.ToShortDateString();
                 EndDateButton.IsEnabled = false;                    // To change the end date, they need to put in a start date first
+                CreateReservationButton.IsEnabled = true;
             }
         }
 
@@ -86,7 +86,7 @@ namespace OpheliasOasis
             {
                 var total_res = (from item in resv.Values where (item.StartDate.Date <= s.Date && item.EndDate.Date > s.Date) select item).Count();
                 if(total_res == 45)
-                { ErrorMessage.Text = "We are booked for " + s.Date; ErrorMessage.Visibility = Visibility.Visible; break; }
+                { ErrorMessage.Text = "We are booked on " + s.Date.Day; ErrorMessage.Visibility = Visibility.Visible; break; }
             }
 
             // if we are booked, then don't let this be visible -- needs to be inserted
@@ -118,17 +118,17 @@ namespace OpheliasOasis
                     newReservation.Type = ReservationType.Incentive; discount = 0.8; break;
             }
 
+            
+
             // get the prices for each day
             for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))   { newReservation.Prices.Add(  ppd[s.Date]*discount  ); }
 
-
-            //newReservation.ReservationID = resv.Count; //not sure if this works
+            //newReservation.Status = 
             newReservation.StartDate = start;
             newReservation.EndDate = end;
-            //newReservation.CustomerID = cust.Count; //not sure if this works
             newReservation.RoomID = -1;     // -1 until the room is assigned each day
 
-            //resv.Add(resv.Count, newReservation); //add the reservation to database
+            resv.Add(newReservation); //add the reservation to database
 
 
 
@@ -137,8 +137,6 @@ namespace OpheliasOasis
             newCustomer.LastName = LastNameBox.Text;
             newCustomer.Phone = PhoneNumberBox.Text;
             newCustomer.Email = EmailBox.Text;
-            //newCustomer.Id = cust.Count;
-            //newCustomer.ReservationID = resv.Count;
 
             // needs an if statement to see if its 60 day or not
             CreditCard cc = new CreditCard();
@@ -149,9 +147,9 @@ namespace OpheliasOasis
 
 
             // needs an if statement to see if the customer is already in the system
-            //cust.Add(cust.Count,newCustomer); //add the customer to database
+            //cust.Add(newCustomer); //add the customer to database
                       
-            
+            //newCustomer.ReservationID =
 
 
         }

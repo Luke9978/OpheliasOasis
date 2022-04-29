@@ -23,7 +23,7 @@ namespace OpheliasOasis
 
         IObservableMap<int, Reservation> resv;      // reservation
         IObservableMap<int, Customer> cust;     // customer
-        IObservableMap<DateTime, double> ppd; // price per day
+        //IObservableMap<DateTime, double> ppd; // price per day
 
         List<Button> buttons = new List<Button>();      // list will contain all the report buttons
         int lastButton = 0;                             // number 0-4 and contains the most recent button clicked
@@ -282,7 +282,7 @@ namespace OpheliasOasis
         {
             resv = database.GetReservations();
             cust = database.GetCustomers();
-            ppd = database.GetPricePerDay();
+            //ppd = database.GetPricePerDay();
         }
     }
 }

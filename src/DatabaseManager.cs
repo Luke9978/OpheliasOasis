@@ -344,7 +344,7 @@ namespace OpheliasOasis.src
             return type;
         }
 
-        public IObservableMap<int, Reservation> GetReservations()
+        public ReservationMap GetReservations()
         {
             _run_event_handler = false;
             var currentDate = DateTime.Today;
@@ -391,7 +391,7 @@ namespace OpheliasOasis.src
             return ReservationLookup;
         }
 
-        public IObservableMap<DateTime, double> GetPricePerDay()
+        public PricePerDay GetPricePerDay()
         {
             _run_event_handler = false;
             var currentDate = DateTime.Today;
@@ -429,7 +429,7 @@ namespace OpheliasOasis.src
             return PriceLookup;
         }
 
-        public IObservableMap<int, Customer> GetCustomers()
+        public CustomerIDMap GetCustomers()
         {
             _run_event_handler = false;
             var currentDate = DateTime.Today;
