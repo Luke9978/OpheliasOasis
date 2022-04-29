@@ -137,7 +137,7 @@ namespace OpheliasOasis.src
                 case CollectionChange.ItemRemoved:
                     throw new NotImplementedException();
                 case CollectionChange.ItemChanged:
-                    InsertIntoDB(sender[@event.Key], true);
+                    InsertIntoDB((@event.Key, sender[@event.Key]), true);
                     break;
                 // No reason? Do nothing
                 default:
@@ -208,25 +208,18 @@ namespace OpheliasOasis.src
                 string cmd = "";
                 SqliteCommand command = new SqliteCommand();
                 command.Connection = Connection;
-                if (update)
-                {
-                    cmd += "UPDATE ";
-                }
-                else
-                {
-                    cmd += "INSERT INTO ";
-                }
+                
+                cmd += "INSERT OR REPLACE INTO ";
+                
 
                 if (item is Reservation)
                 {
                     Reservation reservation = (Reservation)item;
                     
-                    cmd = string.Format("Reservations(ID, TYPE, CUSTOMER_ID, STATUS, " +
+                    cmd += string.Format("Reservations(ID, TYPE, CUSTOMER_ID, STATUS, " +
                                         "ROOM_ID, PRICES, START_DATE, END_DATE) VALUES(@id, @type, @CustomerID, @Status, @ROOM_ID, " +
                                         "@Prices, @StartDate, @EndDate)");
-                    
-                    if (update) cmd += " WHERE ID=" + reservation.ReservationID.ToString();
-
+                   
                     command.CommandText = cmd;
                     command.Parameters.AddWithValue("@id", reservation.ReservationID);
                     
@@ -257,6 +250,9 @@ namespace OpheliasOasis.src
                         case PaymentStatus.Paid:
                             command.Parameters.AddWithValue("@Status", "Paid");
                             break;
+                        case PaymentStatus.Cancled:
+                            command.Parameters.AddWithValue("@Status", "Cancled");
+                            break;
                         default:
                             break;
                     }
@@ -269,10 +265,9 @@ namespace OpheliasOasis.src
                 else if (item is Customer)
                 {
                     Customer customer = (Customer)item;
-                    cmd = string.Format("INSERT INTO Customers(ID, EMAIL, FIRST_NAME, LAST_NAME, PHONE, CREDIT_CARD_NUMBER, CREDIT_CARD_DATE" +
+                    cmd += string.Format("Customers(ID, EMAIL, FIRST_NAME, LAST_NAME, PHONE, CREDIT_CARD_NUMBER, CREDIT_CARD_DATE" +
                                         "CREDIT_CARD_NAME) VALUES(@id, @email, @FirstName, @LastName, @phone, @ccnumber, @ccd, @ccname)");
-                    if (update) cmd += " WHERE ID=" + customer.Id.ToString();
-
+            
                     command.CommandText = cmd;
                     command.Parameters.AddWithValue("@id",customer.Id);
                     command.Parameters.AddWithValue("@email",customer.Email);
@@ -283,15 +278,14 @@ namespace OpheliasOasis.src
                     command.Parameters.AddWithValue("@ccd",customer.CardOnFile.ExpirationDate);
                     command.Parameters.AddWithValue("@ccname",customer.CardOnFile.Name);
                 }
-                else if (item is Tuple<DateTime, double>)
+                else if (item is ValueTuple<DateTime, Double>)
                 {
-                    Tuple<DateTime, double> DatePrice = (Tuple<DateTime, double>)item;
+                    ValueTuple<DateTime, Double> DatePrice = (ValueTuple<DateTime, Double>)item;
                     
-                    cmd = string.Format("Dates(DAY, RATE) VALUES(@day, @rate)");
-                    if (update) cmd += " WHERE DAY=" + DatePrice.Item1.ToString();
+                    cmd += string.Format("Dates(DAY, RATE) VALUES(@day, @rate)");
 
                     command.CommandText = cmd;
-                    command.Parameters.AddWithValue("@day", DatePrice.Item1.ToString());
+                    command.Parameters.AddWithValue("@day", DatePrice.Item1.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@rate", DatePrice.Item2);
                 }
                 // TODO Could do some validiation check here
@@ -327,6 +321,10 @@ namespace OpheliasOasis.src
             else if (input == "Paid")
             {
                 status = PaymentStatus.Paid;
+            }
+            else if (input == "Cancled")
+            {
+                status = PaymentStatus.Cancled;
             }
             return status;
         }
