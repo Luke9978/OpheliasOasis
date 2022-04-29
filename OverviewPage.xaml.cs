@@ -50,7 +50,7 @@ namespace OpheliasOasis
             else if (args.Phase == 1)
             {
                 // Blackout dates in the past and dates that are fully booked.
-                if (args.Item.Date < DateTimeOffset.Now ||
+                if (args.Item.Date < DateTimeOffset.Now.Date ||
                     res_start_today.Count() == 45)
                 {
                     args.Item.IsBlackout = true;
@@ -91,7 +91,7 @@ namespace OpheliasOasis
             { ErrorMessage.Text = "Please select a start date"; ErrorMessage.Visibility = Visibility.Visible; }
 
             // Date selected is in the past
-            else if(MainCalendar.SelectedDates[0].Date < DateTime.Now.Date)
+            else if (MainCalendar.SelectedDates[0].Date < DateTime.Now.Date)
             { ErrorMessage.Text = "Please select a legal start date"; ErrorMessage.Visibility = Visibility.Visible; }
 
             // Valid start date
@@ -114,7 +114,7 @@ namespace OpheliasOasis
             { ErrorMessage.Text = "Please select an end date"; ErrorMessage.Visibility = Visibility.Visible; }
 
             // End date occurs before the start date
-            else if(MainCalendar.SelectedDates[0].Date <= start.Date)
+            else if (MainCalendar.SelectedDates[0].Date <= start.Date)
             { ErrorMessage.Text = "Please select a legal end date"; ErrorMessage.Visibility = Visibility.Visible; }
 
             // Valid start date (for the most part)
@@ -131,10 +131,10 @@ namespace OpheliasOasis
         private void CreateReservationButton_Click(object sender, RoutedEventArgs e)
         {
             // Checks to make sure that none of the days are fully booked
-            for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1)) 
+            for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))
             {
                 var total_res = (from item in resv.Values where (item.StartDate.Date <= s.Date && item.EndDate.Date > s.Date) select item).Count();
-                if(total_res == 45)
+                if (total_res == 45)
                 { ErrorMessage.Text = "We are booked on " + s.Date.Day; ErrorMessage.Visibility = Visibility.Visible; break; }
             }
 
@@ -144,7 +144,6 @@ namespace OpheliasOasis
 
             // also need to calculate which reservations are available with the given dates... not sure how we can use the combobox.
             // Can we make items in the dropdown invisible?
-
         }
 
         private void ConfirmReservationButton_Click(object sender, RoutedEventArgs e)
@@ -152,7 +151,7 @@ namespace OpheliasOasis
 
             Reservation newReservation = new Reservation();
             double discount = 0;
-            
+
             // Which reservation is selected
             switch (ReservationTypeDropdown.SelectedIndex)
             {
@@ -168,10 +167,10 @@ namespace OpheliasOasis
                     newReservation.Type = ReservationType.Incentive; discount = 0.8; break;
             }
 
-            
+
 
             // get the prices for each day
-            for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))   { newReservation.Prices.Add(  ppd[s.Date]*discount  ); }
+            for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1)) { newReservation.Prices.Add(ppd[s.Date] * discount); }
 
             newReservation.StartDate = start;
             newReservation.EndDate = end;
@@ -187,7 +186,7 @@ namespace OpheliasOasis
             newCustomer.Email = EmailBox.Text;
 
             var existingCustomer = from item in cust.Values where (newCustomer.FirstName == item.FirstName && newCustomer.LastName == item.LastName && newCustomer.Phone == item.Phone) select item;
-            
+
             if (existingCustomer.Count() == 0)
                 cust.Add(newCustomer);                      // add the customer to database
             else if (existingCustomer.Count() == 1)
@@ -207,7 +206,7 @@ namespace OpheliasOasis
                 newReservation.Status = PaymentStatus.Paid;
             }
 
-            
+
             resv.Add(newReservation); //add the reservation to database
 
             newReservation.CustomerID = newCustomer.Id;
@@ -217,17 +216,55 @@ namespace OpheliasOasis
 
         private void ReservationTypeDropdown_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(!EndDateLabel.Text.Equals("End Date"))           // for some reason, this method runs right when it's created. So this is just to prevent errors. Don't delete
+            if (!EndDateLabel.Text.Equals("End Date"))           // for some reason, this method runs right when it's created. So this is just to prevent errors. Don't delete
             {
                 double discount = 0;
-                if (ReservationTypeDropdown.SelectedIndex == 0)                     // Select Reservation is selected
+                int selectedIndex = ReservationTypeDropdown.SelectedIndex;
+                DateTime today = DateTime.Now.Date;
+                double averageOccupancy = 0;
+                double numDays = 0;
+                for (DateTime i = start; i < end; i = i.AddDays(1))
+                {
+                    var res_today = from item in resv.Values where item.StartDate.Date >= i.Date && item.EndDate.Date <= i.Date select item;
+                    averageOccupancy += res_today.Count();
+                    numDays++;
+                }
+                averageOccupancy /= numDays;
+                ErrorMessage.Visibility = Visibility.Collapsed;
+                ConfirmReservationButton.IsEnabled = true;
+                if (selectedIndex == 1 && today.AddDays(90) > start.Date)
+                {
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    ErrorMessage.Text = "Prepaid must be set at least 90 days in advanced.";
+                    ConfirmReservationButton.IsEnabled = false;
+                }
+                else if (selectedIndex == 2 && today.AddDays(60) > start.Date)
+                {
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    ErrorMessage.Text = "60-Day must be set at least 60 days in advanced.";
+                    ConfirmReservationButton.IsEnabled = false;
+                }
+                else if (selectedIndex == 4 && today.AddDays(30) <= start.Date)
+                {
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    ErrorMessage.Text = "Incentive must be set within 30 days from today.";
+                    ConfirmReservationButton.IsEnabled = false;
+                }
+                else if (selectedIndex == 4 && averageOccupancy > 27.0)
+                {
+                    ErrorMessage.Visibility = Visibility.Visible;
+                    ErrorMessage.Text = "The average occupancy is too high to select incentive.";
+                    ConfirmReservationButton.IsEnabled = false;
+                }
+
+                if (selectedIndex == 0)               // Select Reservation is selected
                 {
                     FirstNameBox.Visibility = Visibility.Collapsed;
                     LastNameBox.Visibility = Visibility.Collapsed;
                     PhoneNumberBox.Visibility = Visibility.Collapsed;
                     EmailBox.Visibility = Visibility.Collapsed;
                     CreditCardBox.Visibility = Visibility.Collapsed;
-                    NameOnCardBox.Visibility= Visibility.Collapsed;
+                    NameOnCardBox.Visibility = Visibility.Collapsed;
                     ExpirationDateBox.Visibility = Visibility.Collapsed;
                     TotalAmountLabel.Visibility = Visibility.Collapsed;
                 }
@@ -262,12 +299,13 @@ namespace OpheliasOasis
 
                 // This is for displaying the total price of the hotel stay
                 double total = 0;
-                for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))  
+                for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))
                 {
                     try
                     {
-                        total += ppd[s.Date]*discount;
-                    } catch(KeyNotFoundException) 
+                        total += ppd[s.Date] * discount;
+                    }
+                    catch (KeyNotFoundException)
                     {
                         ErrorMessage.Visibility = Visibility.Visible;
                         ErrorMessage.Text = $"Date selected does not have a rate. Date: {s.Date.ToString()}";
@@ -276,7 +314,7 @@ namespace OpheliasOasis
                 }
                 TotalAmountLabel.Text = "$" + total;
             }
-            
+
         }
 
 
