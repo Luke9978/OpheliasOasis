@@ -1,1 +1,9 @@
-Incentive Report
+Daily Arrivals Report
+Date: 4/29/2022 12:08:52 AM
+
+Last Name, First Name           Reservation Type            Room#           Departure Date
+------------------------------------------------------------------------------------------
+
+Ludwig, Sarah          Conventional          0           5/10/2022 12:00:00 AM
+Maskell, Barbara          Conventional          0           5/7/2022 12:00:00 AM
+93.36  36.23

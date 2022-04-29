@@ -406,8 +406,8 @@ namespace OpheliasOasis.src
                 {
                     while (reader.Read())
                     {
-                        DateTime date = DateTime.Parse(reader.GetString(1));
-                        var price = (double)reader.GetValue(2);
+                        DateTime date = DateTime.Parse(reader.GetString(0));
+                        var price = (double)reader.GetValue(1);
                         priceList[date.Date] = price;
                     }
                 }

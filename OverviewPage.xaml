@@ -11,38 +11,40 @@
 
     <Grid>
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Overview" VerticalAlignment="Top" Width="100" Height="50" TextAlignment="Center" SelectionChanged="TextBlock_SelectionChanged" FontSize="24"/>
-        <CalendarView x:Name="MainCalendar" Margin="52,165,0,0" VerticalAlignment="Top" Height="550" Width="600"/>
-        <Button x:Name="CreateReservationButton" Content="Create Reservation" Margin="52,100,0,0" VerticalAlignment="Top" Height="40" Width="150"/>
+        <CalendarView x:Name="MainCalendar" Margin="52,165,0,0" VerticalAlignment="Top" Height="550" Width="600" SelectionMode="Single"/>
+        <Button x:Name="CreateReservationButton" Content="Create Reservation" Margin="52,100,0,0" VerticalAlignment="Top" Height="40" Width="150" Click="CreateReservationButton_Click" IsEnabled="False"/>
         <Button x:Name="StartDateButton" Content="Start Date" Margin="223,100,0,0" VerticalAlignment="Top" Width="82" Height="40" RenderTransformOrigin="0.5,0.5" Click="StartDateButton_Click">
             <Button.RenderTransform>
                 <CompositeTransform SkewX="0" TranslateX="0"/>
             </Button.RenderTransform>
         </Button>
-        <Button x:Name="EndDateButton" Content="End Date" Margin="325,100,0,0" VerticalAlignment="Top" Width="80" Height="40" RenderTransformOrigin="0.5,0.5" Click="EndDateButton_Click">
+        <Button x:Name="EndDateButton" Content="End Date" Margin="325,100,0,0" VerticalAlignment="Top" Width="80" Height="40" RenderTransformOrigin="0.5,0.5" Click="EndDateButton_Click" IsEnabled="False">
             <Button.RenderTransform>
                 <CompositeTransform SkewX="0" TranslateX="0"/>
             </Button.RenderTransform>
         </Button>
-        <TextBlock x:Name="StartDateLabel" HorizontalAlignment="Left" Margin="223,70,0,0" TextWrapping="Wrap" Text="Start Date" VerticalAlignment="Top" Height="25" Width="80" TextAlignment="Center"/>
-        <TextBlock x:Name="EndDateLabel" HorizontalAlignment="Left" Margin="325,70,0,0" TextWrapping="Wrap" Text="End Date" VerticalAlignment="Top" Height="25" Width="80" TextAlignment="Center"/>
-        <TextBlock x:Name="ErrorMessage" HorizontalAlignment="Left" Margin="427,100,0,0" TextWrapping="Wrap" Text="An error has occurred" VerticalAlignment="Top" Height="40" Width="195" TextAlignment="Center" Foreground="#FFE20A0A" FontSize="16" Visibility="Visible"/>
-        <StackPanel x:Name="ReservationFields" Margin="750,165,84,245">
-            <ComboBox x:Name="ReservationTypeDropdown" Width="325" PlaceholderText="Conventional" SelectionChanged="ReservationTypeDropdown_SelectionChanged">
+        <TextBlock x:Name="StartDateLabel" HorizontalAlignment="Left" Margin="223,74,0,0" TextWrapping="Wrap" Text="Start Date" VerticalAlignment="Top" Height="25" Width="80" TextAlignment="Center"/>
+        <TextBlock x:Name="EndDateLabel" HorizontalAlignment="Left" Margin="325,74,0,0" TextWrapping="Wrap" Text="End Date" VerticalAlignment="Top" Height="25" Width="80" TextAlignment="Center"/>
+        <TextBlock x:Name="ErrorMessage" HorizontalAlignment="Left" Margin="427,100,0,0" TextWrapping="Wrap" Text="An error has occurred" VerticalAlignment="Top" Height="40" Width="195" TextAlignment="Center" Foreground="#FFE20A0A" FontSize="16" Visibility="Collapsed"/>
+        <StackPanel x:Name="ReservationFields" Margin="750,165,84,245" Visibility="Collapsed">
+            <ComboBox x:Name="ReservationTypeDropdown" Width="325" PlaceholderText="Select Reservation" SelectionChanged="ReservationTypeDropdown_SelectionChanged">
+                <ComboBoxItem Content="Select Reservation"/>
                 <ComboBoxItem Content="Prepaid"/>
-                <ComboBoxItem Content="Conventional" IsSelected="True"/>
                 <ComboBoxItem Content="Sixty-Days-in-Advanced"/>
+                <ComboBoxItem Content="Conventional"/>
+                <ComboBoxItem Content="Incentive"/>
             </ComboBox>
-            <TextBox x:Name="FirstNameBox" TextWrapping="Wrap" Text="" Width="224" HorizontalAlignment="Left" PlaceholderText="First Name"/>
-            <TextBox x:Name="LastNameBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Last Name" HorizontalAlignment="Left"/>
-            <TextBox x:Name="PhoneNumberBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Phone Number" HorizontalAlignment="Left"/>
-            <TextBox x:Name="EmailBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Email" HorizontalAlignment="Left"/>
+            <TextBox x:Name="FirstNameBox" TextWrapping="Wrap" Text="" Width="224" HorizontalAlignment="Left" PlaceholderText="First Name" Visibility="Collapsed"/>
+            <TextBox x:Name="LastNameBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Last Name" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBox x:Name="PhoneNumberBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Phone Number" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBox x:Name="EmailBox" TextWrapping="Wrap" Text="" Width="224" PlaceholderText="Email" HorizontalAlignment="Left" Visibility="Collapsed"/>
             <TextBlock x:Name="BlankBox" TextWrapping="Wrap" Text="" Height="55" FontSize="14" VerticalAlignment="Stretch"/>
-            <TextBox x:Name="CreditCardBox" TextWrapping="Wrap" Text="" PlaceholderText="Credit Card #" HorizontalAlignment="Left" Width="224"/>
-            <TextBox x:Name="NameOnCardBox" TextWrapping="Wrap" Text="" HorizontalAlignment="Left" PlaceholderText="Name on Card" Width="224"/>
-            <TextBox x:Name="ExpirationDateBox" TextWrapping="Wrap" Text="" PlaceholderText="Expiration Date" Width="224" HorizontalAlignment="Left"/>
-            <TextBlock x:Name="TotalAmountLabel" TextWrapping="Wrap" Text="$0.00" HorizontalAlignment="Center" Height="30" Width="80" FontSize="24"/>
-            <Button x:Name="ConfirmReservationButton" Content="Confirm Reservation"/>
-            <TextBlock x:Name="PaymentMessage" TextWrapping="Wrap" Text="Payment Successful" FontSize="14" HorizontalAlignment="Left"/>
+            <TextBox x:Name="CreditCardBox" TextWrapping="Wrap" Text="" PlaceholderText="Credit Card #" HorizontalAlignment="Left" Width="224" Visibility="Collapsed"/>
+            <TextBox x:Name="NameOnCardBox" TextWrapping="Wrap" Text="" HorizontalAlignment="Left" PlaceholderText="Name on Card" Width="224" Visibility="Collapsed"/>
+            <TextBox x:Name="ExpirationDateBox" TextWrapping="Wrap" Text="" PlaceholderText="Expiration Date" Width="224" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <TextBlock x:Name="TotalAmountLabel" TextWrapping="Wrap" Text="$0.00" HorizontalAlignment="Center" Height="30" Width="80" FontSize="24" Visibility="Collapsed"/>
+            <Button x:Name="ConfirmReservationButton" Content="Confirm Reservation" Click="ConfirmReservationButton_Click"/>
+            <TextBlock x:Name="PaymentMessage" TextWrapping="Wrap" Text="Payment Successful" FontSize="14" HorizontalAlignment="Left" Visibility="Collapsed"/>
         </StackPanel>
 
     </Grid>

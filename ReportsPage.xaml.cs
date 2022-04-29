@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Windows.Foundation.Collections;
+using System.Linq;
 
 
 
@@ -107,40 +108,175 @@ namespace OpheliasOasis
             
             if(lastButton == 0)
             {
-                await FileIO.WriteTextAsync(file, "Daily Arrivals Report\n");
-                foreach (var item in resv)
+                await FileIO.WriteTextAsync(file, "Daily Arrivals Report\nDate: "+DateTime.Now+"\n\n");
+                await FileIO.AppendTextAsync(file, "Last Name, First Name           Reservation Type            Room#           Departure Date\n");
+                await FileIO.AppendTextAsync(file, "------------------------------------------------------------------------------------------\n\n");
+
+                var res_start_today = from item in resv.Values where item.StartDate.Date == DateTime.Now.Date select item;
+                var cust_ordered = from item in cust.Values orderby item.LastName select item;
+
+                foreach (var i in res_start_today)
                 {
-                    string s = "ew";// item.Value;
-                    await FileIO.AppendTextAsync(file, s);
+                    var customerF = from j in cust.Values where j.Id == i.CustomerID select j;      // Customer Found using this Query
+                    await FileIO.AppendTextAsync(file, customerF.First().LastName + ", " + customerF.First().FirstName + "          " + i.Type + "          " + i.RoomID + "           " + i.EndDate + "\n");
                 }
-                
+
             }
 
 
             else if(lastButton == 1)
             {
-                await FileIO.WriteTextAsync(file, "Daily Occupancy Report\n");
+                await FileIO.WriteTextAsync(file, "Daily Occupancy Report\nDate: " + DateTime.Now + "\n\n");
+                await FileIO.AppendTextAsync(file, "Room#           Last Name, First Name           Departure Date (* if leaving today)\n");
+                await FileIO.AppendTextAsync(file, "-----------------------------------------------------------------------------------\n\n");
+
+                var resF = from item in resv.Values where (item.StartDate.Date < DateTime.Now.Date && item.EndDate.Date >= DateTime.Now.Date) orderby item.RoomID select item;
+
+                foreach (var i in resF)
+                {
+                    var customerF = from j in cust.Values where j.Id == i.CustomerID select j;
+                    if (i.EndDate.Day == DateTime.Now.Day)
+                        await FileIO.AppendTextAsync(file, i.RoomID + "           " + customerF.First().LastName + ", " + customerF.First().FirstName + "           " + "*\n");
+                    else
+                        await FileIO.AppendTextAsync(file, i.RoomID + "           " + customerF.First().LastName + ", " + customerF.First().FirstName + "           " + i.EndDate + "\n");
+                }
+
             }
 
 
             else if(lastButton == 2)
             {
-                await FileIO.WriteTextAsync(file, "Expected Occupancy Report\n");
+                await FileIO.WriteTextAsync(file, "Expected Occupancy Report\nDate: " + DateTime.Now + "\n\n");
+                await FileIO.AppendTextAsync(file, "Date            Prepaid            60-day          Conventional            Incentive           Total\n");
+                await FileIO.AppendTextAsync(file, "----------------------------------------------------------------------------------------------------\n\n");
+
+                DateTime thirty = DateTime.Now.Date.AddDays(30);
+
+                var resF = from item in resv.Values where ((item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+
+                int[] total = new int[120];
+
+                int hi = 0;
+
+                foreach (var i in resF)
+                {
+                    hi++;
+                    int difference = i.StartDate.Subtract(DateTime.Now.Date).Days;
+
+                    foreach (var j in i.Prices)
+                    {
+                        
+                        if (difference < 0)
+                            difference++;
+                        else if (difference < 30)
+                        {
+                            if (i.Type == ReservationType.Prepaid)
+                                total[difference * 4]++;
+                            else if (i.Type == ReservationType.SixtyDays)
+                                total[difference * 4 + 1]++;
+                            else if (i.Type == ReservationType.Conventional)
+                                total[difference * 4 + 2]++;
+                            else if (i.Type == ReservationType.Incentive)
+                                total[difference * 4 + 3]++;
+
+                            difference++;
+                        }
+                    }
+                }
+                double tot = 0;
+                for (int i = 1; i <= 120 ; i+=4)
+                {
+                    int t = total[i - 1] + total[i] + total[i + 1] + total[i + 2];
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays((i-1)/4) + "         " + total[i-1] + "            " + total[i] + "            " + total[i+1] + "            " + total[i+2] + "            "+ hi+"\n");
+                    tot += t;
+                }
+                await FileIO.AppendTextAsync(file, "Average Expected Occupancy Rate:  " + tot / 30);
+
+
             }
 
 
             else if(lastButton == 3)
             {
-                await FileIO.WriteTextAsync(file, "Expected Room Income Report\n");
+                await FileIO.WriteTextAsync(file, "Expected Room Income Report\nDate: " + DateTime.Now + "\n\n");
+                await FileIO.AppendTextAsync(file, "Date                    Income\n");
+                await FileIO.AppendTextAsync(file, "------------------------------\n\n");
+
+                DateTime thirty = DateTime.Now.Date.AddDays(30);
+
+                var resF = from item in resv.Values where ((item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+
+                double[] total = new double[30];
+
+                foreach(var i in resF)
+                {
+                    int difference = i.StartDate.Subtract(DateTime.Now.Date).Days;
+                    
+                    foreach(var j in i.Prices)
+                    {
+                        if (difference < 0)
+                            difference++;
+                        else if (difference < 30)
+                        {
+                            total[difference] = total[difference] + j;
+                            difference++;
+                        }
+                    }
+                }
+                double tot = 0;
+                for(int i =0; i < 30; i++)
+                {
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "                 " + total[i] + "\n");
+                    tot += total[i];
+                }
+                await FileIO.AppendTextAsync(file, "Total Income:  $" + tot + "\n");
+                await FileIO.AppendTextAsync(file, "Average Income:  $" + tot / 30);
+
             }
 
 
             else if(lastButton == 4)
             {
-                await FileIO.WriteTextAsync(file, "Incentive Report\n");
+                await FileIO.WriteTextAsync(file, "Incentive Report\nDate: " + DateTime.Now + "\n\n");
+                await FileIO.AppendTextAsync(file, "Date                Total Incentive Discount\n");
+                await FileIO.AppendTextAsync(file, "--------------------------------------------\n\n");
+
+                DateTime thirty = DateTime.Now.Date.AddDays(30);
+
+                var resF = from item in resv.Values where ((item.Type.Equals(ReservationType.Incentive) && (item.StartDate.Date > DateTime.Now.Date || item.StartDate.Date < thirty)) || (item.EndDate.Date > DateTime.Now.Date || item.EndDate.Date < thirty)) orderby item.StartDate select item;
+
+                double[] total = new double[30];
+
+                foreach(var i in resF)
+                {
+                    int difference = i.StartDate.Subtract(DateTime.Now.Date).Days;
+
+                    foreach(var j in i.Prices)
+                    {
+                        if (difference < 0)
+                            difference++;
+                        else if(difference < 30)
+                        {
+                            total[difference] += (j / 0.8) - j;  // normal_price - (normal_price*0.2) = incentive_price -> normal_price = incentive_price/0.8
+                            difference++;
+                        }
+                    }
+                }
+                double tot = 0;
+                for(int i=0; i<30; i++)
+                {
+                    await FileIO.AppendTextAsync(file, DateTime.Now.Date.AddDays(i) + "             " + total[i] + "\n");
+                    tot += total[i];
+                }
+                await FileIO.AppendTextAsync(file, "Total Incentive Discount:  $" + tot + "\n");
+                await FileIO.AppendTextAsync(file, "Average Incentive Discount:  $" + tot / 30);
             }
 
         }
+
+
+
+
 
         public void setDB(src.DatabaseManager database)
         {
