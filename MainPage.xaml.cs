@@ -29,6 +29,8 @@ namespace OpheliasOasis
         ManagementPage      managementPage     = new ManagementPage();
         MainPage            mainpage;
 
+
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -73,6 +75,7 @@ namespace OpheliasOasis
                     }
                     else if (PasswordBox.Text == "emp")
                     {
+
                         Login.Visibility = Visibility.Collapsed;
                         Login.IsEnabled = false;
                         Logout.Visibility = Visibility.Visible;

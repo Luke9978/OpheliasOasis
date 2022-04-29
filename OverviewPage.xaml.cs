@@ -23,7 +23,7 @@ namespace OpheliasOasis
         DateTime start, end;
         ReservationMap resv;      // reservation
         CustomerIDMap cust;     // customer
-        PricePerDay ppd; // price per day
+        PricePerDay ppd;        // price per day
 
 
         public OverviewPage()
@@ -123,12 +123,10 @@ namespace OpheliasOasis
             // get the prices for each day
             for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))   { newReservation.Prices.Add(  ppd[s.Date]*discount  ); }
 
-            //newReservation.Status = 
             newReservation.StartDate = start;
             newReservation.EndDate = end;
             newReservation.RoomID = -1;     // -1 until the room is assigned each day
 
-            resv.Add(newReservation); //add the reservation to database
 
 
 
@@ -138,19 +136,32 @@ namespace OpheliasOasis
             newCustomer.Phone = PhoneNumberBox.Text;
             newCustomer.Email = EmailBox.Text;
 
-            // needs an if statement to see if its 60 day or not
-            CreditCard cc = new CreditCard();
-            cc.CardNumbers = CreditCardBox.Text;
-            cc.Name = NameOnCardBox.Text;
-            cc.ExpirationDate = ExpirationDateBox.Text;
-            newCustomer.CardOnFile = cc;
+            var existingCustomer = from item in cust.Values where (newCustomer.FirstName == item.FirstName && newCustomer.LastName == item.LastName && newCustomer.Phone == item.Phone) select item;
+            
+            if (existingCustomer.Count() == 0)
+                cust.Add(newCustomer);                      // add the customer to database
+            else if (existingCustomer.Count() == 1)
+                newCustomer = existingCustomer.First();     // newCustomer now equals existing customer
 
+            if (ReservationTypeDropdown.SelectedIndex == 2)
+            {
+                newReservation.Status = PaymentStatus.NotPaid;
+            }
+            else
+            {
+                CreditCard cc = new CreditCard();
+                cc.CardNumbers = CreditCardBox.Text;
+                cc.Name = NameOnCardBox.Text;
+                cc.ExpirationDate = ExpirationDateBox.Text;
+                newCustomer.CardOnFile = cc;
+                newReservation.Status = PaymentStatus.Paid;
+            }
 
-            // needs an if statement to see if the customer is already in the system
-            //cust.Add(newCustomer); //add the customer to database
-                      
-            //newCustomer.ReservationID =
+            
+            resv.Add(newReservation); //add the reservation to database
 
+            newReservation.CustomerID = newCustomer.Id;
+            newCustomer.ReservationID = newReservation.ReservationID;
 
         }
 
