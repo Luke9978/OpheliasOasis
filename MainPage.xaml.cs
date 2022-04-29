@@ -34,6 +34,7 @@ namespace OpheliasOasis
             this.InitializeComponent();
             reportsPage.setDB(dataBase);
             overviewPage.setDB(dataBase);
+            managementPage.SetDatabase(dataBase);
         }
 
         private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

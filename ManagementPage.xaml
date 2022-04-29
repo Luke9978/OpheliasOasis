@@ -6,13 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="606.5"
+    d:DesignWidth="1124.5">
 
-    <Grid Margin="0,0,-94,-144">
+    <Grid Margin="0,0,0,0">
         <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Management" VerticalAlignment="Top"/>
-        <Button x:Name="EditBaseRateButton" Content="Edit Base Rate" Margin="10,32,0,0" VerticalAlignment="Top" Height="30" Width="85" FontSize="10"/>
-        <CalendarView Margin="53,82,0,0" VerticalAlignment="Top" Height="308" Width="384"/>
-
+        <CalendarView x:Name="PriceDateCalendar" CalendarViewDayItemChanging="CalendarView_CalendarViewDayItemChanging" Margin="37,52,0,0" Height="539" Width="602" ManipulationMode="All" SelectionMode="Multiple" VerticalAlignment="Top"/>
+        <Button Content="Set Rate" Margin="995,559,0,0" VerticalAlignment="Top" Width="114"/>
+        <TextBox HorizontalAlignment="Left" Margin="995,514,0,0" TextWrapping="Wrap" Text="Rate" VerticalAlignment="Top" Height="40" Width="114"/>
+        <TextBlock HorizontalAlignment="Left" Margin="980,522,0,0" TextWrapping="Wrap" Text="$" VerticalAlignment="Top" FontSize="18" Height="30" Width="15"/>
+        <TextBlock x:Name="listBox" HorizontalAlignment="Left" Height="389" Margin="644,116,0,0" VerticalAlignment="Top" Width="454"/>
+        <DatePicker Name="RateDatePicker" Margin="644,53,0,0" VerticalAlignment="Top" DayVisible="False" Height="29" Width="465" DateChanged="DatePicker_DateChanged"/>
+        <TextBlock HorizontalAlignment="Left" Margin="644,87,0,0" TextWrapping="Wrap" Text="Price For the month" VerticalAlignment="Top"/>
+        <Button Content="Save Backup" Name="SaveDB" Margin="674,559,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Content="Load Backup" Name="LoadDB" Margin="793,559,0,0" VerticalAlignment="Top" Click="Button_Click"/>
     </Grid>
 </UserControl>
