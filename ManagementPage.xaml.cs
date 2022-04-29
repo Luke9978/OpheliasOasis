@@ -6,6 +6,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -23,6 +26,7 @@ namespace OpheliasOasis
     {
         private src.DatabaseManager DatabaseManager = null;
         private PricePerDay priceMap;
+
         public ManagementPage()
         {
             this.InitializeComponent();
@@ -36,27 +40,6 @@ namespace OpheliasOasis
             renderTextBox(startOfMonth);
         }
 
-        private void CalendarView_CalendarViewDayItemChanging(CalendarView sender,
-                               CalendarViewDayItemChangingEventArgs args)
-        {
-            // Render basic day items.
-            if (args.Phase == 0)
-            {
-                // Register callback for next phase.
-                args.RegisterUpdateCallback(CalendarView_CalendarViewDayItemChanging);
-            }
-            // Set blackout dates.
-            else if (args.Phase == 1)
-            {
-                // Blackout dates in the past, and days not in the month.
-                if (args.Item.Date < DateTimeOffset.Now)
-                {
-                    args.Item.IsBlackout = true;
-                }
-                // Register callback for next phase.
-                args.RegisterUpdateCallback(CalendarView_CalendarViewDayItemChanging);
-            }
-        }
         private void renderTextBox(DateTime TargetDate)
         {
             listBox.Text = "";
@@ -64,6 +47,7 @@ namespace OpheliasOasis
             var EndOfMonth = new DateTime(TargetDate.Year, TargetDate.Month, DateTime.DaysInMonth(TargetDate.Year, TargetDate.Month));
             for (var s = TargetDate.Date; s.Date <= EndOfMonth.Date; s = s.AddDays(1))
             {
+
                 prices += s.Date.ToString("dd/MM/yyy") + ": $";
                 try
                 {
@@ -76,15 +60,31 @@ namespace OpheliasOasis
             }
             listBox.Text = prices;
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button).Name == "LoadDB")
             {
-                
+                FileOpenPicker openPicker = new FileOpenPicker();
+                openPicker.ViewMode = PickerViewMode.List;
+                openPicker.FileTypeFilter.Add(".db");
+
+                StorageFile file = await openPicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    await DatabaseManager.LoadDBAsync(file);
+                }
             }
             if ((sender as Button).Name == "SaveDB")
             {
+                var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+                savePicker.FileTypeChoices.Add("SQL Database", new List<string>() { ".db" });
+                savePicker.SuggestedFileName = "Database" + DateTime.Now.ToString("_yyyy_MM_dd") + ".db";
+                var file = await savePicker.PickSaveFileAsync();
 
+                if (file != null)
+                {
+                    await DatabaseManager.SaveDBAsync(file);
+                }
             }
         }
 
@@ -92,6 +92,67 @@ namespace OpheliasOasis
         {
             var startOfMonth = new DateTime(year: e.NewDate.Year, month: e.NewDate.Month, day: 1);
             renderTextBox(startOfMonth);
+            PriceDateCalendar.SetDisplayDate(startOfMonth);
+        }
+
+        private void Button_ClearCalendar(object sender, RoutedEventArgs e)
+        {
+            PriceDateCalendar.SelectedDates.Clear();
+        }
+
+        private async void Button_Set_Rate(object sender, RoutedEventArgs e)
+        {
+            double rate = -1;
+            string errorReason = "";
+            try
+            {
+                rate = double.Parse(wantedPrice.Text);
+            }
+            catch (FormatException ex)
+            {
+                errorReason = ex.Message;
+            }
+
+            if (rate < 0.0)
+            {
+                errorReason = "Number can't be equal or less than 0.";
+            }
+
+            if (errorReason != "")
+            {
+                var msg = new MessageDialog("Invalid input");
+                msg.Content = errorReason;
+                msg.Commands.Add(new UICommand("Okay"));
+                await msg.ShowAsync();
+                return;
+            }
+
+            foreach (var date in PriceDateCalendar.SelectedDates)
+            {
+                priceMap[date.Date] = rate;
+            }
+            
+            var startOfMonth = new DateTime(year: RateDatePicker.Date.Year, month: RateDatePicker.Date.Month, day: 1);
+            renderTextBox(startOfMonth);
+            PriceDateCalendar.SelectedDates.Clear();
+        }
+
+        private void PriceDateCalendar_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
+        {
+            // Render basic day items.
+            if (args.Phase == 0)
+            {
+                // Register callback for next phase.
+                args.RegisterUpdateCallback(PriceDateCalendar_CalendarViewDayItemChanging);
+            }
+            else if (args.Phase == 1)
+            {
+                if (args.Item.Date.Date < DateTime.Now.Date)
+                {
+                    args.Item.IsBlackout = true;
+                }
+                args.RegisterUpdateCallback(PriceDateCalendar_CalendarViewDayItemChanging);
+            }
         }
     }
 }
