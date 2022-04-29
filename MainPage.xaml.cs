@@ -27,6 +27,7 @@ namespace OpheliasOasis
         CustomerLookupPage  customerLookupPage = new CustomerLookupPage();
         ReportsPage         reportsPage        = new ReportsPage();
         ManagementPage      managementPage     = new ManagementPage();
+        MainPage            mainpage;
 
         public MainPage()
         {
@@ -52,6 +53,9 @@ namespace OpheliasOasis
                     ContentFrame.Content = managementPage;
                     break;
                 case "Login":
+                    if(PasswordBox.Text == "man")
+                    {
+
                     Login.Visibility = Visibility.Collapsed;
                     Login.IsEnabled = false;
                     Logout.Visibility = Visibility.Visible;
@@ -65,6 +69,23 @@ namespace OpheliasOasis
                     Management.Visibility = Visibility.Visible;
                     Management.IsEnabled = true;
                     ContentFrame.Content = null;
+                    }
+                    else if (PasswordBox.Text == "emp")
+                    {
+                        Login.Visibility = Visibility.Collapsed;
+                        Login.IsEnabled = false;
+                        Logout.Visibility = Visibility.Visible;
+                        Logout.IsEnabled = true;
+                        Overview.Visibility = Visibility.Visible;
+                        Overview.IsEnabled = true;
+                        CustomerLookup.Visibility = Visibility.Visible;
+                        CustomerLookup.IsEnabled = true;
+                        Reports.Visibility = Visibility.Visible;
+                        Reports.IsEnabled = true;
+                        Management.Visibility = Visibility.Collapsed;
+                        Management.IsEnabled = false;
+                        ContentFrame.Content = null;
+                    }
                     break;
                 case "Logout":
                     Logout.Visibility = Visibility.Collapsed;
@@ -80,8 +101,14 @@ namespace OpheliasOasis
                     Management.Visibility = Visibility.Collapsed;
                     Management.IsEnabled = false;
                     ContentFrame.Content = null;
+                    System.Environment.Exit(0);
                     break;
             }
+        }
+
+        private void PasswordBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

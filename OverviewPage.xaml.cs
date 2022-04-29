@@ -28,5 +28,24 @@ namespace OpheliasOasis
         {
 
         }
+        private void StartDateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReservationFields.Visibility = Visibility.Collapsed;
+        }
+
+        private void EndDateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReservationFields.Visibility = Visibility.Visible;
+        }
+
+        private void ReservationTypeDropdown_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //if (ReservationTypeDropdown.SelectedItem.Content.equals("Sixty-Days-in-Advanced"))
+            //{
+            //    CreditCardBox.Visibility = Visibility.Collapsed;              // Attempt to collapse credit card info when 60 day is selected
+            //    NameOnCardBox.Visibility = Visibility.Collapsed;
+            //    ExpirationDateBox.Visibility = Visibility.Collapsed;
+            //}
+        }
     }
 }

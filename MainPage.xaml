@@ -19,7 +19,9 @@
                 <NavigationViewItem Content="Reports" x:Name="Reports" IsEnabled="False" Visibility="Collapsed"/>
                 <NavigationViewItem Content="Management" x:Name="Management" IsEnabled="False" Visibility="Collapsed"/>
             </NavigationView.MenuItems>
-            <Frame x:Name="ContentFrame"/>
+            <Frame x:Name="ContentFrame">
+                <TextBox x:Name="PasswordBox" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" Height="50" Width="150" TextAlignment="Center" TextChanged="PasswordBox_TextChanged" PlaceholderText="Password"/>
+            </Frame>
         </NavigationView>
 
         <!-- App bar button with bitmap icon. -->
