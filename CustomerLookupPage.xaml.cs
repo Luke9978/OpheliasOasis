@@ -31,7 +31,7 @@ namespace OpheliasOasis
 
         private void LookupCustomerButton_Click(object sender, RoutedEventArgs e)
         {
-            /*var existingCustomer = from item in cust.Values where (FirstNameBox.Text == item.FirstName && LastNameBox.Text == item.LastName) select item;
+            var existingCustomer = from item in cust.Values where (FirstNameBox.Text == item.FirstName && LastNameBox.Text == item.LastName) select item;
             Customer ec;
 
             if (existingCustomer.Count() == 0)
@@ -47,12 +47,15 @@ namespace OpheliasOasis
                 return;
             }
             else
-                ec = existingCustomer.First();*/
+                ec = existingCustomer.First();
 
+            //Fill in data
+            CustNamesLabel.Text = "First Name: " + ec.FirstName + "\t\tLast Name: " + ec.LastName;
+            CustPhoneEmailLabel.Text = "Phone Number: " + ec.Phone + "\t\tEmail Address: " + ec.Email;
+            CustIDresIDLabel.Text = "CustomerID: " + ec.Id;
 
-            string[] row = { "First Name: ", "Last Name" };//ec.FirstName, "\t\tLast Name: ", ec.LastName };
-            //var li = new ListViewItem(row);
-            //SearchResults.Items.Add(item: new ListViewItem(row));
+            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID) select item;
+            
 
         }
 
