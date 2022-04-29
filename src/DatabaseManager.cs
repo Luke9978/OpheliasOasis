@@ -5,6 +5,9 @@ using Windows.Storage;
 using Windows.Foundation.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using Windows.UI.Popups;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 
 namespace OpheliasOasis.src
 {
@@ -12,7 +15,7 @@ namespace OpheliasOasis.src
     {
         // This should only ever be 'created' during the constuctor
         readonly SqliteConnection Connection;
-        
+        readonly StorageFile DatabaseLocation;
         
         // Database 
         readonly ReservationMap   ReservationLookup;
@@ -49,11 +52,11 @@ namespace OpheliasOasis.src
             // No idea why I can't use a regular non asyc funtion here 
             var fileTask = storageFolder.CreateFileAsync("Database.db", CreationCollisionOption.OpenIfExists);
             fileTask.AsTask().Wait();
-            var dbFile = fileTask.GetResults();
+            DatabaseLocation = fileTask.GetResults();
 
             SqliteConnectionStringBuilder _sql = new SqliteConnectionStringBuilder
             {
-                DataSource = dbFile.Path,
+                DataSource = DatabaseLocation.Path,
                 Mode = SqliteOpenMode.ReadWriteCreate
             };
 
@@ -65,13 +68,13 @@ namespace OpheliasOasis.src
             }
             catch (SqliteException e)
             {
-                Console.WriteLine("Program was unable to open database at: " + dbFile.Path);
+                Console.WriteLine("Program was unable to open database at: " + DatabaseLocation.Path);
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 return;
             }
 
             // If the database is empty then it needs to be constructed
-            if (new FileInfo(dbFile.Path).Length == 0)
+            if (new FileInfo(DatabaseLocation.Path).Length == 0)
             {
                 // Customer table
                 var cmd =
@@ -118,6 +121,70 @@ namespace OpheliasOasis.src
             GetCustomers();
             _run_event_handler = true;
         }
+
+        public async Task LoadDBAsync(Windows.Storage.StorageFile loc)
+        {
+            
+            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+
+            var fileTask = storageFolder.CreateFileAsync("Database_incoming.db", CreationCollisionOption.OpenIfExists);
+            fileTask.AsTask().Wait();
+            var res = fileTask.GetResults();
+
+            var copyOp = loc.CopyAndReplaceAsync(res);
+
+            // Run some sanity checks on the DB
+            SqliteConnectionStringBuilder _sql = new SqliteConnectionStringBuilder
+            {
+                DataSource = DatabaseLocation.Path,
+                Mode = SqliteOpenMode.ReadOnly
+            };
+
+
+            var conn = new SqliteConnection(_sql.ConnectionString);
+            try
+            {
+                await copyOp;
+                Connection.Open();
+            }
+            catch (SqliteException e)
+            {
+                var msg = new MessageDialog("Unable to import new database");
+                msg.Content = e.Message;
+                msg.Commands.Add(new UICommand("Okay"));
+                await msg.ShowAsync();
+                return;
+            }
+
+            // TODO more advanced checks
+
+            // Save and replace the current one.
+            conn.Close();
+            Connection.Close();
+            await res.CopyAndReplaceAsync(DatabaseLocation);
+            Connection.Open();
+
+            await res.DeleteAsync();
+
+            // make sure all parts have the new data
+            var result = await CoreApplication.RequestRestartAsync("Application Restart Programmatically ");
+
+            if (result == AppRestartFailureReason.NotInForeground ||
+                result == AppRestartFailureReason.RestartPending ||
+                result == AppRestartFailureReason.Other)
+            {
+                var msgBox = new MessageDialog("Restart Failed", result.ToString());
+                await msgBox.ShowAsync();
+            }
+        }
+
+        public async Task SaveDBAsync(Windows.Storage.StorageFile loc)
+        {
+            Connection.Close();
+            await DatabaseLocation.CopyAndReplaceAsync(loc);
+            Connection.Open();
+        }
+
 
         private void PriceLookup_MapChanged(IObservableMap<DateTime, double> sender, IMapChangedEventArgs<DateTime> @event)
         {
