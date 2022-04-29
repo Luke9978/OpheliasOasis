@@ -192,7 +192,7 @@ namespace OpheliasOasis
             var aChangeEvent = new MapChangeReason();
             aChangeEvent.Key = key;
             aChangeEvent.CollectionChange = reason;
-            MapChanged.Invoke(this, aChangeEvent);
+            MapChanged?.Invoke(this, aChangeEvent);
         }
 
         public PricePerDay()
