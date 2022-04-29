@@ -27,15 +27,15 @@ namespace OpheliasOasis
         CustomerLookupPage customerLookupPage = new CustomerLookupPage();
         ReportsPage reportsPage = new ReportsPage();
         ManagementPage managementPage = new ManagementPage();
-        public bool isManager;
 
-
+        bool emp;
 
         public MainPage()
         {
             this.InitializeComponent();
-            reportsPage.setDB(dataBase);
             overviewPage.setDB(dataBase);
+            customerLookupPage.setDB(dataBase);
+            reportsPage.setDB(dataBase);
             managementPage.SetDatabase(dataBase);
         }
 
@@ -52,6 +52,7 @@ namespace OpheliasOasis
                     break;
                 case "Reports":
                     ContentFrame.Content = reportsPage;
+                    reportsPage.isEmp(emp);
                     break;
                 case "Management":
                     ContentFrame.Content = managementPage;
@@ -72,7 +73,7 @@ namespace OpheliasOasis
                         Management.Visibility = Visibility.Visible;
                         Management.IsEnabled = true;
                         ContentFrame.Content = overviewPage;
-                        isManager = true;
+                        emp = false;
                     }
                     else if (PasswordBox.Text == "emp")
                     {
@@ -90,7 +91,7 @@ namespace OpheliasOasis
                         Management.Visibility = Visibility.Collapsed;
                         Management.IsEnabled = false;
                         ContentFrame.Content = overviewPage;
-                        isManager = false;
+                        emp = true;
                     }
                     break;
                 case "Logout":
@@ -116,5 +117,6 @@ namespace OpheliasOasis
         {
 
         }
+
     }
 }
