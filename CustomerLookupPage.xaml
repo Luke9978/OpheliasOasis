@@ -15,12 +15,17 @@
         <TextBox x:Name="LastNameBox" HorizontalAlignment="Left" Margin="215,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="40" Width="200" PlaceholderText="Last Name"/>
         <TextBox x:Name="PhoneNumberBox" HorizontalAlignment="Left" Margin="420,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="40" Width="200" PlaceholderText="Phone #"/>
         <Button x:Name="LookupCustomerButton" Content="Lookup Customer" Margin="636,59,0,0" VerticalAlignment="Top" Height="40" Width="200" FontSize="14" Click="LookupCustomerButton_Click"/>
-        <StackPanel Margin="840,155,10,10">
+
+        <StackPanel x:Name="ControlPanel" Margin="840,155,10,10" Visibility="Collapsed">
             <Button x:Name="EditReservationButton" Content="Edit Reservation" Height="40" Width="200" FontSize="14" Click="EditReservationButton_Click"/>
             <Button x:Name="DeleteReservationButton" Content="Delete Reservation" Height="40" Width="200" FontSize="14" Click="DeleteReservationButton_Click"/>
             <Button x:Name="CheckInButton" Content="Check In" Height="40" Width="200" FontSize="14" Click="CheckInButton_Click"/>
             <Button x:Name="CheckOutButton" Content="Checkout" Height="40" Width="200" FontSize="14" Click="CheckOutButton_Click"/>
-            <Button x:Name="AddCreditCardButton" Content="Add Credit Card" Height="40" Width="200" FontSize="14"/>
+            <Button x:Name="AddCreditCardButton" Content="Add Credit Card" Height="40" Width="200" FontSize="14" Click="AddCreditCardButton_Click"/>
+            <TextBox x:Name="NewCardNumberBox" TextWrapping="Wrap" Text="" Height="40" Width="200" PlaceholderText="Credit Card Number"  Visibility="Collapsed" HorizontalAlignment="Left" TextAlignment="Center"/>
+            <TextBox x:Name="NewCardNameBox" TextWrapping="Wrap" Text="" Height="40" Width="200" PlaceholderText="Name on Card"  Visibility="Collapsed" HorizontalAlignment="Left" TextAlignment="Center"/>
+            <TextBox x:Name="NewCardExpDateBox" TextWrapping="Wrap" Text="" Height="40" Width="200" PlaceholderText="Expiration Date"  Visibility="Collapsed" HorizontalAlignment="Left" TextAlignment="Center"/>
+            <Button x:Name="SaveCreditCardButton" Content="Save Credit Card" Height="40" Width="200" FontSize="14" Visibility="Collapsed" Click="SaveCreditCardButton_Click"/>
         </StackPanel>
         <TextBlock x:Name="CustLookErrorLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="  " VerticalAlignment="Top" FontSize="14" Margin="857,63,0,0" Height="36" Width="173" FocusVisualPrimaryBrush="#FFDA0C0C" Foreground="#FFDA1313"/>
         <StackPanel Margin="36,155,724,261">
@@ -28,7 +33,9 @@
             <TextBlock x:Name="CustNamesLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
             <TextBlock x:Name="CustPhoneEmailLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
             <TextBlock x:Name="CustIDresIDLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
-            <TextBlock x:Name="CustCCLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
+            <TextBlock x:Name="CustCCNumLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
+            <TextBlock x:Name="CustCCNameLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
+            <TextBlock x:Name="CustCCExpLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
             <TextBlock x:Name="SeparatorLabel" TextWrapping="Wrap" Text="  " Height="70" FontSize="16"/>
             <TextBlock x:Name="ReservationLabel" TextWrapping="Wrap" Text="Reservation Information" Height="35" FontSize="16"/>
             <TextBlock x:Name="ReservationTypeDateLabel" TextWrapping="Wrap" Text="  " Height="35" FontSize="16"/>
