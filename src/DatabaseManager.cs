@@ -277,19 +277,19 @@ namespace OpheliasOasis.src
                 command.Connection = Connection;
                 
                 cmd += "INSERT OR REPLACE INTO ";
-                
+
 
                 if (item is Reservation)
                 {
                     Reservation reservation = (Reservation)item;
-                    
+
                     cmd += string.Format("Reservations(ID, TYPE, CUSTOMER_ID, STATUS, " +
                                         "ROOM_ID, PRICES, START_DATE, END_DATE) VALUES(@id, @type, @CustomerID, @Status, @ROOM_ID, " +
                                         "@Prices, @StartDate, @EndDate)");
-                   
+
                     command.CommandText = cmd;
                     command.Parameters.AddWithValue("@id", reservation.ReservationID);
-                    
+
                     switch (reservation.Type)
                     {
                         case ReservationType.SixtyDays:
@@ -324,26 +324,42 @@ namespace OpheliasOasis.src
                             break;
                     }
                     command.Parameters.AddWithValue("@ROOM_ID", reservation.RoomID);
-                    command.Parameters.AddWithValue("@Prices", reservation.Prices.ToString());
+
+                    string prices = string.Empty;
+                    foreach (double value in reservation.Prices)
+                    {
+                        prices += value.ToString() + " ";
+                    }
+
+                    command.Parameters.AddWithValue("@Prices", prices);
                     command.Parameters.AddWithValue("@StartDate", reservation.StartDate.ToString());
                     command.Parameters.AddWithValue("@EndDate", reservation.EndDate.ToString());
-                    
+
                 }
                 else if (item is Customer)
                 {
                     Customer customer = (Customer)item;
-                    cmd += string.Format("Customers(ID, EMAIL, FIRST_NAME, LAST_NAME, PHONE, CREDIT_CARD_NUMBER, CREDIT_CARD_DATE" +
+                    cmd += string.Format("Customers(ID, EMAIL, FIRST_NAME, LAST_NAME, PHONE, CREDIT_CARD_NUMBER, CREDIT_CARD_DATE," +
                                         "CREDIT_CARD_NAME) VALUES(@id, @email, @FirstName, @LastName, @phone, @ccnumber, @ccd, @ccname)");
-            
+
                     command.CommandText = cmd;
-                    command.Parameters.AddWithValue("@id",customer.Id);
-                    command.Parameters.AddWithValue("@email",customer.Email);
-                    command.Parameters.AddWithValue("@FirstName",customer.FirstName);
-                    command.Parameters.AddWithValue("@LastName",customer.LastName);
-                    command.Parameters.AddWithValue("@phone",customer.Phone);
-                    command.Parameters.AddWithValue("@ccnumber",customer.CardOnFile.CardNumbers);
-                    command.Parameters.AddWithValue("@ccd",customer.CardOnFile.ExpirationDate);
-                    command.Parameters.AddWithValue("@ccname",customer.CardOnFile.Name);
+                    command.Parameters.AddWithValue("@id", customer.Id);
+                    command.Parameters.AddWithValue("@email", customer.Email);
+                    command.Parameters.AddWithValue("@FirstName", customer.FirstName);
+                    command.Parameters.AddWithValue("@LastName", customer.LastName);
+                    command.Parameters.AddWithValue("@phone", customer.Phone);
+                    if (customer.CardOnFile != null)
+                    {
+                        command.Parameters.AddWithValue("@ccnumber", customer.CardOnFile.CardNumbers);
+                        command.Parameters.AddWithValue("@ccd", customer.CardOnFile.ExpirationDate);
+                        command.Parameters.AddWithValue("@ccname", customer.CardOnFile.Name);
+                    }
+                    else
+                    {
+                        command.Parameters.AddWithValue("@ccnumber", "");
+                        command.Parameters.AddWithValue("@ccd", "");
+                        command.Parameters.AddWithValue("@ccname", "");
+                    }
                 }
                 else if (item is ValueTuple<DateTime, Double>)
                 {
@@ -372,7 +388,13 @@ namespace OpheliasOasis.src
 
             foreach (var item in splitInput)
             {
-                result.Add(double.Parse(item));
+                try
+                {
+                    result.Add(double.Parse(item));
+                }
+                catch (Exception)
+                {
+                }
             }
 
             return result;

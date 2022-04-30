@@ -7,6 +7,7 @@ using Windows.Foundation.Collections;
 
 namespace OpheliasOasis
 {
+    
     public class MapCallBack<V> : IObservableMap<int, V>
     {
         private readonly Dictionary<int, V> _items;
@@ -156,6 +157,18 @@ namespace OpheliasOasis
 
     public class Reservation : INotifyPropertyChanged
     {
+        public Reservation()
+        {
+            ReservationID = -1;
+            Type          = ReservationType.Conventional;
+            Status        = PaymentStatus.NotPaid;
+            StartDate     = DateTime.MinValue;
+            EndDate       = DateTime.MinValue;
+            Prices        = new List<double>();
+            CustomerID    = -1;
+            RoomID        = -1;
+        }
+
         public int ReservationID { get; set; }
         public ReservationType Type { get; set; }
         public PaymentStatus Status { get; set; }

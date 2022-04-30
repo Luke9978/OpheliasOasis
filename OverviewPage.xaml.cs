@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -209,8 +209,11 @@ namespace OpheliasOasis
 
             resv.Add(newReservation); //add the reservation to database
 
+            // Update the DB
             newReservation.CustomerID = newCustomer.Id;
-            newCustomer.ReservationID = newReservation.ReservationID;
+            newCustomer.Id = newReservation.CustomerID;
+            resv[newReservation.ReservationID] = newReservation;
+            cust[newCustomer.Id] = newCustomer;
 
         }
 
@@ -309,7 +312,14 @@ namespace OpheliasOasis
                     {
                         ErrorMessage.Visibility = Visibility.Visible;
                         ErrorMessage.Text = $"Date selected does not have a rate. Date: {s.Date.ToString()}";
-                        ConfirmReservationButton.IsEnabled = false;
+                        FirstNameBox.Visibility = Visibility.Collapsed;
+                        LastNameBox.Visibility = Visibility.Collapsed;
+                        PhoneNumberBox.Visibility = Visibility.Collapsed;
+                        EmailBox.Visibility = Visibility.Collapsed;
+                        CreditCardBox.Visibility = Visibility.Collapsed;
+                        NameOnCardBox.Visibility = Visibility.Collapsed;
+                        ExpirationDateBox.Visibility = Visibility.Collapsed;
+                        TotalAmountLabel.Visibility = Visibility.Collapsed;
                     }
                 }
                 TotalAmountLabel.Text = "$" + total;
@@ -317,9 +327,31 @@ namespace OpheliasOasis
 
         }
 
+        private void CancelReservationButton_Click(object sender, RoutedEventArgs e)
+        {
+            FirstNameBox.Visibility = Visibility.Collapsed;
+            LastNameBox.Visibility = Visibility.Collapsed;
+            PhoneNumberBox.Visibility = Visibility.Collapsed;
+            EmailBox.Visibility = Visibility.Collapsed;
+            CreditCardBox.Visibility = Visibility.Collapsed;
+            NameOnCardBox.Visibility = Visibility.Collapsed;
+            ExpirationDateBox.Visibility = Visibility.Collapsed;
+            TotalAmountLabel.Visibility = Visibility.Collapsed;
 
+            FirstNameBox.Text = "";
+            LastNameBox.Text = "";
+            PhoneNumberBox.Text = "";
+            EmailBox.Text = "";
+            CreditCardBox.Text = "";
+            NameOnCardBox.Text = "";
+            ExpirationDateBox.Text = "";
+            TotalAmountLabel.Text = "";
 
-
+            ConfirmReservationButton.IsEnabled = false;
+            ErrorMessage.Visibility = Visibility.Collapsed;
+            ConfirmReservationButton.IsEnabled = false;
+            ReservationTypeDropdown.SelectedIndex = 0;
+        }
 
         public void setDB(src.DatabaseManager database)
         {
