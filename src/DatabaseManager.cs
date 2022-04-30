@@ -320,6 +320,9 @@ namespace OpheliasOasis.src
                         case PaymentStatus.Cancled:
                             command.Parameters.AddWithValue("@Status", "Cancled");
                             break;
+                        case PaymentStatus.Completed:
+                            command.Parameters.AddWithValue("@Status", "Completed");
+                            break;
                         default:
                             break;
                     }
@@ -414,6 +417,10 @@ namespace OpheliasOasis.src
             else if (input == "Cancled")
             {
                 status = PaymentStatus.Cancled;
+            }
+            else if (input == "Completed")
+            {
+                status = PaymentStatus.Completed;
             }
             return status;
         }

@@ -336,7 +336,8 @@ namespace OpheliasOasis
     {
         NotPaid,
         Paid,
-        Cancled
+        Cancled,
+        Completed
     }
 
     public enum reportType 
