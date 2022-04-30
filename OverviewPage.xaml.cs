@@ -133,11 +133,14 @@ namespace OpheliasOasis
         private void CreateReservationButton_Click(object sender, RoutedEventArgs e)
         {
             // Checks to make sure that none of the days are fully booked
+            int[] available = new int[46]; available[0] = 1;
             for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1))
             {
-                var total_res = (from item in resv.Values where (item.StartDate.Date <= s.Date && item.EndDate.Date > s.Date) select item).Count();
-                if (total_res == 45)
-                { ErrorMessage.Text = "We are booked on " + s.Date.Day; ErrorMessage.Visibility = Visibility.Visible; break; }
+                var total_res = from item in resv.Values where (item.StartDate.Date <= s.Date && item.EndDate.Date > s.Date) select item;
+                
+                if (total_res.Count() == 45)
+                { ErrorMessage.Text = "We are booked on " + s.Date.Day; ErrorMessage.Visibility = Visibility.Visible; return; }
+
             }
 
             // if we are booked, then don't let this be visible -- needs to be inserted
