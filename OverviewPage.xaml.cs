@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,7 +26,9 @@ namespace OpheliasOasis
         ReservationMap resv;      // reservation
         CustomerIDMap cust;     // customer
         PricePerDay ppd;        // price per day
-
+        bool IsUpdatingValue = false;
+        bool areYouSure;
+        Reservation updatingRes;
 
         public OverviewPage()
         {
@@ -36,6 +38,129 @@ namespace OpheliasOasis
         private void TextBlock_SelectionChanged(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        public void LoadExisitngReservation(Reservation aRes)
+        {
+            IsUpdatingValue = true;
+            updatingRes = aRes;
+            start = aRes.StartDate;
+            end = aRes.EndDate;
+            StartDateLabel.Text = aRes.StartDate.Date.ToString();
+            EndDateLabel.Text = aRes.EndDate.Date.ToString();
+
+            ReservationFields.Visibility = Visibility.Visible;
+
+            Customer aCus = cust[aRes.CustomerID];
+
+            switch (updatingRes.Type)
+            {
+                case ReservationType.Conventional: SetFeildsVisiablity(3); ReservationTypeDropdown.SelectedIndex = 3; break;
+                case ReservationType.Incentive:    SetFeildsVisiablity(4); ReservationTypeDropdown.SelectedIndex = 4; break;
+                case ReservationType.SixtyDays:    SetFeildsVisiablity(2); ReservationTypeDropdown.SelectedIndex = 2; break;
+                case ReservationType.Prepaid:      SetFeildsVisiablity(1); ReservationTypeDropdown.SelectedIndex = 1; break;
+                default: break;
+            }
+
+            FirstNameBox.Text = aCus.FirstName;
+            LastNameBox.Text = aCus.LastName;
+            PhoneNumberBox.Text = aCus.Phone;
+            EmailBox.Text = aCus.Email;
+            if (aCus.CardOnFile != null)
+            {
+                CreditCardBox.Text = aCus.CardOnFile.CardNumbers;
+                NameOnCardBox.Text = aCus.CardOnFile.Name;
+                ExpirationDateBox.Text = aCus.CardOnFile.ExpirationDate;
+            }
+            else
+            {
+                CreditCardBox.Text = "";
+                NameOnCardBox.Text = "";
+                ExpirationDateBox.Text = "";
+            }
+
+            TotalAmountLabel.Text = aRes.Prices.Sum().ToString();
+        }
+        private async void CommandInvokedHandler(IUICommand command)
+        {
+            if (command.Label == "Yes")
+            {
+                areYouSure = true;
+            }
+            else
+            {
+                areYouSure = false;
+            }
+        }
+        private async void UpdateReservation()
+        {
+            List<double> updatedPrice = new List<double>();
+
+            // Need to rerun the price calc
+            if (updatingRes.StartDate != start || updatingRes.EndDate != end)
+            {
+                double discount = 1.0;
+                switch (updatingRes.Type)
+                {
+                    case ReservationType.Prepaid: discount = 0.75; break;
+                    case ReservationType.SixtyDays: discount = 0.85; break;
+                    case ReservationType.Conventional: discount = 1.0; break;
+                    case ReservationType.Incentive: discount = 0.8; break;
+                    default: break;
+                }
+
+                // get the prices for each day
+                for (var s = start.Date; s.Date < end.Date; s = s.AddDays(1)) { updatedPrice.Add(ppd[s.Date] * discount); }
+
+            }
+            double diff = Math.Max(updatedPrice.Sum() - updatingRes.Prices.Sum(), 0.0);
+            var popup = new MessageDialog("Are you sure? Price differnce: " + diff.ToString());
+            popup.Commands.Add(new UICommand(
+                    "Yes",
+                    new UICommandInvokedHandler(this.CommandInvokedHandler)));
+            popup.Commands.Add(new UICommand(
+                "Cancel",
+                new UICommandInvokedHandler(this.CommandInvokedHandler)));
+
+            popup.DefaultCommandIndex = 0;
+
+            popup.CancelCommandIndex = 1;
+
+            await popup.ShowAsync();
+
+            if (areYouSure == false)
+            {
+                IsUpdatingValue = false;
+                resetFeilds();
+                return;
+            }
+
+            var list = from item in cust.Values where updatingRes.CustomerID == item.Id select item;
+            
+            var TargetCust = list.First();
+
+            updatingRes.Prices = updatedPrice;
+
+            TargetCust.FirstName = FirstNameBox.Text;
+            TargetCust.LastName = LastNameBox.Text;
+            TargetCust.Phone = PhoneNumberBox.Text;
+            TargetCust.Email = EmailBox.Text;
+
+            if (TargetCust.CardOnFile == null)
+            {
+                var newCard = new CreditCard();
+                TargetCust.CardOnFile = newCard;
+            }
+            
+            TargetCust.CardOnFile.CardNumbers = CreditCardBox.Text;
+            TargetCust.CardOnFile.Name = NameOnCardBox.Text;
+            TargetCust.CardOnFile.ExpirationDate = ExpirationDateBox.Text;
+
+            resv[updatingRes.ReservationID] = updatingRes;
+            cust[TargetCust.Id] = TargetCust;
+
+            IsUpdatingValue = false;
+            resetFeilds();
         }
 
         private void CalendarView_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
@@ -100,12 +225,16 @@ namespace OpheliasOasis
             else
             {
                 ErrorMessage.Visibility = Visibility.Collapsed;     // just in case it's visible
-                ReservationFields.Visibility = Visibility.Collapsed;    // so they can't make a reservation with invalid dates *Check
                 start = MainCalendar.SelectedDates[0].Date;
                 EndDateButton.IsEnabled = true;
                 StartDateLabel.Text = start.ToShortDateString();
-                end = DateTime.Now;                                 // just in case it had a previous value
-                EndDateLabel.Text = "End Date";                     // ^
+                // Not when updating exisitng Reservation
+                if (!IsUpdatingValue)
+                {
+                    ReservationFields.Visibility = Visibility.Collapsed;    // so they can't make a reservation with invalid dates *Check
+                    end = DateTime.Now;                                 // just in case it had a previous value
+                    EndDateLabel.Text = "End Date";                     // ^
+                }
             }
         }
 
@@ -174,6 +303,12 @@ namespace OpheliasOasis
                 msg.ShowAsync();
                 return;
             }
+
+            if (IsUpdatingValue)
+            {
+                UpdateReservation();
+            }
+
             //ReservationTypeDropdown.SelectedIndex(1)
             Reservation newReservation = new Reservation();
             double discount = 0;
@@ -218,6 +353,8 @@ namespace OpheliasOasis
             else if (existingCustomer.Count() == 1)
                 newCustomer = existingCustomer.First();     // newCustomer now equals existing customer
 
+            
+
             if (ReservationTypeDropdown.SelectedIndex == 2)
             {
                 newReservation.Status = PaymentStatus.NotPaid;
@@ -232,7 +369,6 @@ namespace OpheliasOasis
                 newReservation.Status = PaymentStatus.Paid;
             }
 
-
             resv.Add(newReservation); //add the reservation to database
 
             // Update the DB
@@ -241,6 +377,45 @@ namespace OpheliasOasis
             resv[newReservation.ReservationID] = newReservation;
             cust[newCustomer.Id] = newCustomer;
 
+            resetFeilds();
+
+        }
+
+        private void SetFeildsVisiablity(int selection)
+        {
+            if (selection == 0)               // Select Reservation is selected
+            {
+                FirstNameBox.Visibility = Visibility.Collapsed;
+                LastNameBox.Visibility = Visibility.Collapsed;
+                PhoneNumberBox.Visibility = Visibility.Collapsed;
+                EmailBox.Visibility = Visibility.Collapsed;
+                CreditCardBox.Visibility = Visibility.Collapsed;
+                NameOnCardBox.Visibility = Visibility.Collapsed;
+                ExpirationDateBox.Visibility = Visibility.Collapsed;
+                TotalAmountLabel.Visibility = Visibility.Collapsed;
+            }
+            else if (selection == 2)            // Collapse CC info when 60 day is selected
+            {
+                FirstNameBox.Visibility = Visibility.Visible;
+                LastNameBox.Visibility = Visibility.Visible;
+                PhoneNumberBox.Visibility = Visibility.Visible;
+                EmailBox.Visibility = Visibility.Visible;
+                CreditCardBox.Visibility = Visibility.Collapsed;
+                NameOnCardBox.Visibility = Visibility.Collapsed;
+                ExpirationDateBox.Visibility = Visibility.Collapsed;
+                TotalAmountLabel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                FirstNameBox.Visibility = Visibility.Visible;                               // Make everything avaiable
+                LastNameBox.Visibility = Visibility.Visible;
+                PhoneNumberBox.Visibility = Visibility.Visible;
+                EmailBox.Visibility = Visibility.Visible;
+                CreditCardBox.Visibility = Visibility.Visible;
+                NameOnCardBox.Visibility = Visibility.Visible;
+                ExpirationDateBox.Visibility = Visibility.Visible;
+                TotalAmountLabel.Visibility = Visibility.Visible;
+            }
         }
 
         private void ReservationTypeDropdown_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -288,44 +463,15 @@ namespace OpheliasOasis
                     ConfirmReservationButton.IsEnabled = false;
                 }
 
-                if (selectedIndex == 0)               // Select Reservation is selected
-                {
-                    FirstNameBox.Visibility = Visibility.Collapsed;
-                    LastNameBox.Visibility = Visibility.Collapsed;
-                    PhoneNumberBox.Visibility = Visibility.Collapsed;
-                    EmailBox.Visibility = Visibility.Collapsed;
-                    CreditCardBox.Visibility = Visibility.Collapsed;
-                    NameOnCardBox.Visibility = Visibility.Collapsed;
-                    ExpirationDateBox.Visibility = Visibility.Collapsed;
-                    TotalAmountLabel.Visibility = Visibility.Collapsed;
-                }
-                else if (ReservationTypeDropdown.SelectedIndex == 2)            // Collapse CC info when 60 day is selected
-                {
-                    FirstNameBox.Visibility = Visibility.Visible;
-                    LastNameBox.Visibility = Visibility.Visible;
-                    PhoneNumberBox.Visibility = Visibility.Visible;
-                    EmailBox.Visibility = Visibility.Visible;
-                    CreditCardBox.Visibility = Visibility.Collapsed;
-                    NameOnCardBox.Visibility = Visibility.Collapsed;
-                    ExpirationDateBox.Visibility = Visibility.Collapsed;
-                    TotalAmountLabel.Visibility = Visibility.Visible;
+                SetFeildsVisiablity(selectedIndex);
 
-                    discount = 0.85;
-                }
-                else
+                switch (selectedIndex)
                 {
-                    FirstNameBox.Visibility = Visibility.Visible;                               // Make everything avaiable
-                    LastNameBox.Visibility = Visibility.Visible;
-                    PhoneNumberBox.Visibility = Visibility.Visible;
-                    EmailBox.Visibility = Visibility.Visible;
-                    CreditCardBox.Visibility = Visibility.Visible;
-                    NameOnCardBox.Visibility = Visibility.Visible;
-                    ExpirationDateBox.Visibility = Visibility.Visible;
-                    TotalAmountLabel.Visibility = Visibility.Visible;
-
-                    if (ReservationTypeDropdown.SelectedIndex == 1) discount = 0.75;
-                    else if (ReservationTypeDropdown.SelectedIndex == 3) discount = 1.0;
-                    else if (ReservationTypeDropdown.SelectedIndex == 4) discount = 0.8;
+                    case 1: discount = 0.75; break;
+                    case 2: discount = 0.85; break;
+                    case 3: discount = 1.0;  break;
+                    case 4: discount = 0.8;  break;
+                    default: break;
                 }
 
                 // This is for displaying the total price of the hotel stay
@@ -355,7 +501,7 @@ namespace OpheliasOasis
 
         }
 
-        private void CancelReservationButton_Click(object sender, RoutedEventArgs e)
+        private void resetFeilds()
         {
             FirstNameBox.Visibility = Visibility.Collapsed;
             LastNameBox.Visibility = Visibility.Collapsed;
@@ -375,10 +521,21 @@ namespace OpheliasOasis
             ExpirationDateBox.Text = "";
             TotalAmountLabel.Text = "";
 
+            StartDateLabel.Text = "Start Date";
+            EndDateLabel.Text = "End Date";
+            start = DateTime.Now;
+            end = DateTime.Now;
+
             ConfirmReservationButton.IsEnabled = false;
             ErrorMessage.Visibility = Visibility.Collapsed;
             ConfirmReservationButton.IsEnabled = false;
             ReservationTypeDropdown.SelectedIndex = 0;
+        }
+
+        private void CancelReservationButton_Click(object sender, RoutedEventArgs e)
+        {
+            resetFeilds();
+            IsUpdatingValue = false;
         }
 
         public void setDB(src.DatabaseManager database)

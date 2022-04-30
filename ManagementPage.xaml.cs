@@ -31,7 +31,7 @@ namespace OpheliasOasis
         {
             this.InitializeComponent();
         }
-        public void SetDatabase(src.DatabaseManager db)
+        public void SetDB(src.DatabaseManager db)
         {
             DatabaseManager = db;
             priceMap = db.GetPricePerDay();

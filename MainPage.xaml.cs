@@ -37,8 +37,10 @@ namespace OpheliasOasis
             PasswordBox.KeyDown += PasswordBox_KeyDown;
             overviewPage.setDB(dataBase);
             customerLookupPage.setDB(dataBase);
+            customerLookupPage.SetMainPage(this);
             reportsPage.setDB(dataBase);
-            managementPage.SetDatabase(dataBase);
+            managementPage.SetDB(dataBase);
+            
         }
 
         private void PasswordBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -86,6 +88,13 @@ namespace OpheliasOasis
                 ContentFrame.Content = overviewPage;
                 emp = true;
             }
+        }
+
+        public void GoToOverview(Reservation aRes)
+        {
+            ContentFrame.Content = overviewPage;
+            NavigationMenu.SelectedItem = Overview;
+            overviewPage.LoadExisitngReservation(aRes);
         }
 
         public void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

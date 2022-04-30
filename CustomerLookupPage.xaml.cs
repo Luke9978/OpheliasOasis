@@ -25,12 +25,18 @@ namespace OpheliasOasis
         ReservationMap resv;      // reservation
         CustomerIDMap cust;     // customer
         PricePerDay ppd;        // price per day
+        MainPage page;
 
         Customer ec;
 
         public CustomerLookupPage()
         {
             this.InitializeComponent();
+        }
+
+        public void SetMainPage(object a)
+        {
+            this.page = (MainPage)a;
         }
 
         private void LookupCustomerButton_Click(object sender, RoutedEventArgs e)
@@ -68,6 +74,7 @@ namespace OpheliasOasis
             var findReservation = from item in resv.Values where item.ReservationID == ec.ReservationID select item;
             int[] available = new int[46]; available[0] = 1;
             int room = 0;
+            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID && item.Status != PaymentStatus.Completed) select item;
             
             var resF = from item in resv.Values where (item.StartDate.Date <= DateTime.Now.Date && item.EndDate.Date > DateTime.Now.Date) orderby item.RoomID select item;
             foreach(var item in resF)
@@ -137,5 +144,32 @@ namespace OpheliasOasis
             ppd = database.GetPricePerDay();
         }
 
+        private void EditReservationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CustIDresIDLabel.Text != "")
+            {
+                int key = -1;
+                try
+                {
+                    key = int.Parse(CustIDresIDLabel.Text.Split(" ")[1]);
+                }
+                catch (Exception)
+                {
+                    return;
+                }
+                
+                if (cust.ContainsKey(key))
+                {
+                    var list = from item in resv.Values where item.CustomerID == key && item.Status != PaymentStatus.Completed select item;
+                    Reservation reservation = list.First();
+                    if (reservation != null)
+                    {
+                        page.GoToOverview(reservation);
+                    }
+                }
+            }
+
+
+        }
     }
 }
