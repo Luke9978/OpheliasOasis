@@ -30,7 +30,9 @@ namespace OpheliasOasis
         Boolean file_selected = false;                  // false if the .txt file hasn't been selected yet, true if selected
         StorageFile file;                               // the file that will contain the report data
 
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ReportsPage()
         {
             this.InitializeComponent();
@@ -41,7 +43,9 @@ namespace OpheliasOasis
             buttons.Add(IncentiveButton);
         }
 
-
+        /// <summary>
+        /// Selects Daily Arrival and sets color to green
+        /// </summary>
         void DA_button(object sender, RoutedEventArgs e)        // Daily Arrivals Button
         {
             buttons[lastButton].Background = not_selected;
@@ -49,6 +53,9 @@ namespace OpheliasOasis
             lastButton = 0;
         }
 
+        /// <summary>
+        /// Selects Daily Occupancy and sets color to green
+        /// </summary>
         void DO_button(object sender, RoutedEventArgs e)        // Daily Occupancy Button
         {
             buttons[lastButton].Background = not_selected;
@@ -56,6 +63,9 @@ namespace OpheliasOasis
             lastButton = 1;
         }
 
+        /// <summary>
+        /// Selects Expected Occupancy and sets color to green
+        /// </summary>
         void EO_button(object sender, RoutedEventArgs e)        // Expected Occupancy Button
         {
             buttons[lastButton].Background = not_selected;
@@ -63,6 +73,9 @@ namespace OpheliasOasis
             lastButton = 2;
         }
 
+        /// <summary>
+        /// Selects Expected Room Income and sets color to green
+        /// </summary>
         void ERI_button(object sender, RoutedEventArgs e)       // Expected Room Income Button
         {
             buttons[lastButton].Background = not_selected;
@@ -70,6 +83,9 @@ namespace OpheliasOasis
             lastButton = 3;
         }
 
+        /// <summary>
+        /// Selects Incentive and sets color to green
+        /// </summary>
         void I_button(object sender, RoutedEventArgs e)         // Incentive Button
         {
             buttons[lastButton].Background = not_selected;
@@ -77,11 +93,17 @@ namespace OpheliasOasis
             lastButton = 4;
         }
 
+        /// <summary>
+        /// Calls EmailText()
+        /// </summary>
         void Email_button(object sender, RoutedEventArgs e)     // Print Button
         {
             _ = EmailText();
         }
 
+        /// <summary>
+        /// Prints all emails sent to 60-day customers
+        /// </summary>
         public async Task EmailText()
         {
             // This will bring up the File Explorer, user needs to Select .txt file
@@ -117,11 +139,17 @@ namespace OpheliasOasis
 
         }
 
+        /// <summary>
+        /// Calls AddText()
+        /// </summary>
         void Print_button(object sender, RoutedEventArgs e)     // Print Button
         {
             _ = AddText();
         }
 
+        /// <summary>
+        /// Prints report selected to txt file
+        /// </summary>
         public async Task AddText()
         {
             if (file_selected == false)
@@ -317,16 +345,18 @@ namespace OpheliasOasis
 
         }
 
-
-
-
-
+        /// <summary>
+        /// Sets the DB
+        /// </summary>
         public void setDB(src.DatabaseManager database)
         {
             resv = database.GetReservations();
             cust = database.GetCustomers();
         }
 
+        /// <summary>
+        /// Checks if basic employee is logged in
+        /// </summary>
         public void isEmp(bool emp)
         {
             if (emp)

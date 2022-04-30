@@ -39,6 +39,9 @@ namespace OpheliasOasis
             this.page = (MainPage)a;
         }
 
+        /// <summary>
+        /// Populates data for the customer if the fields filled
+        /// </summary>
         private void LookupCustomerButton_Click(object sender, RoutedEventArgs e)
         {
             var existingCustomer = from item in cust.Values where (FirstNameBox.Text == item.FirstName && LastNameBox.Text == item.LastName) select item;
@@ -83,7 +86,9 @@ namespace OpheliasOasis
             ControlPanel.Visibility = Visibility.Visible;
         }
 
-
+        /// <summary>
+        /// Assigns a room number to the reservation
+        /// </summary>
         private void CheckInButton_Click(object sender, RoutedEventArgs e)
         {
             var findReservation = from item in resv.Values where item.CustomerID == ec.Id orderby item.StartDate ascending select item;
@@ -117,12 +122,17 @@ namespace OpheliasOasis
             resv[targetRes.ReservationID] = targetRes;
         }
 
-      
+        /// <summary>
+        /// Sets the reservation as complete. Prints an accommodation bill to file
+        /// </summary>
         private void CheckOutButton_Click(object sender, RoutedEventArgs e)
         {
             _ = accomidationBill();
         }
 
+        /// <summary>
+        /// Writes to a file
+        /// </summary>
         private async Task accomidationBill()
         {
             // This will bring up the File Explorer, user needs to Select .txt file
@@ -159,7 +169,9 @@ namespace OpheliasOasis
             findReservation.First().Status = PaymentStatus.Completed;
         }
 
-
+        /// <summary>
+        /// Sets the DB
+        /// </summary>
         public void setDB(src.DatabaseManager database)
         {
             resv = database.GetReservations();
@@ -167,6 +179,9 @@ namespace OpheliasOasis
             ppd = database.GetPricePerDay();
         }
 
+        /// <summary>
+        /// Sets frame to overview
+        /// </summary>
         private void EditReservationButton_Click(object sender, RoutedEventArgs e)
         {
             if (CustIDresIDLabel.Text != "")
@@ -194,6 +209,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Shows new card info boxes
+        /// </summary>
         private void AddCreditCardButton_Click(object sender, RoutedEventArgs e)
         {
             NewCardNumberBox.Visibility = Visibility.Visible;
@@ -202,6 +220,9 @@ namespace OpheliasOasis
             SaveCreditCardButton.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Saves new card info to the customer in the DB
+        /// </summary>
         private void SaveCreditCardButton_Click(object sender, RoutedEventArgs e)
         {
             CustCCNumLabel.Text = "Credit Card #: " + NewCardNumberBox.Text;

@@ -27,10 +27,17 @@ namespace OpheliasOasis
         private src.DatabaseManager DatabaseManager = null;
         private PricePerDay priceMap;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ManagementPage()
         {
             this.InitializeComponent();
         }
+        
+        /// <summary>
+        /// Sets the DB
+        /// </summary>
         public void SetDB(src.DatabaseManager db)
         {
             DatabaseManager = db;
@@ -40,6 +47,9 @@ namespace OpheliasOasis
             renderTextBox(startOfMonth);
         }
 
+        /// <summary>
+        /// Renders the price list for the selected month
+        /// </summary>
         private void renderTextBox(DateTime TargetDate)
         {
             listBox.Text = "";
@@ -60,6 +70,10 @@ namespace OpheliasOasis
             }
             listBox.Text = prices;
         }
+        
+        /// <summary>
+        /// Loading and saving of the DB
+        /// </summary>
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button).Name == "LoadDB")
@@ -88,6 +102,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Event handler for date change
+        /// </summary>
         private void DatePicker_DateChanged(object sender, DatePickerValueChangedEventArgs e)
         {
             var startOfMonth = new DateTime(year: e.NewDate.Year, month: e.NewDate.Month, day: 1);
@@ -95,11 +112,17 @@ namespace OpheliasOasis
             PriceDateCalendar.SetDisplayDate(startOfMonth);
         }
 
+        /// <summary>
+        /// Clears selected dates
+        /// </summary>
         private void Button_ClearCalendar(object sender, RoutedEventArgs e)
         {
             PriceDateCalendar.SelectedDates.Clear();
         }
 
+        /// <summary>
+        /// Saves the rate for selected dates in the calendar to the DB
+        /// </summary>
         private async void Button_Set_Rate(object sender, RoutedEventArgs e)
         {
             double rate = -1;
@@ -137,6 +160,9 @@ namespace OpheliasOasis
             PriceDateCalendar.SelectedDates.Clear();
         }
 
+        /// <summary>
+        /// Black out past dates
+        /// </summary>
         private void PriceDateCalendar_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
         {
             // Render basic day items.

@@ -31,6 +31,9 @@ namespace OpheliasOasis
 
         bool emp;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public MainPage()
         {
             this.InitializeComponent();
@@ -43,6 +46,7 @@ namespace OpheliasOasis
             
         }
 
+        // Allows enter key to log you in
         private void PasswordBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
@@ -51,6 +55,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Login function that shows and enables certain tabs of the nav bar
+        /// </summary>
         private void logIn()
         {
             if (PasswordBox.Text == "man")
@@ -90,6 +97,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Changes frame to the overview screen
+        /// </summary>
         public void GoToOverview(Reservation aRes)
         {
             ContentFrame.Content = overviewPage;

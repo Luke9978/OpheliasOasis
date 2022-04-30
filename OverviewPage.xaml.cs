@@ -30,6 +30,9 @@ namespace OpheliasOasis
         bool areYouSure;
         Reservation updatingRes;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public OverviewPage()
         {
             this.InitializeComponent();
@@ -40,6 +43,9 @@ namespace OpheliasOasis
 
         }
 
+        /// <summary>
+        /// Populates overview with currently searched reservation
+        /// </summary>
         public void LoadExisitngReservation(Reservation aRes)
         {
             IsUpdatingValue = true;
@@ -81,6 +87,7 @@ namespace OpheliasOasis
 
             TotalAmountLabel.Text = aRes.Prices.Sum().ToString();
         }
+        
         private async void CommandInvokedHandler(IUICommand command)
         {
             if (command.Label == "Yes")
@@ -92,6 +99,10 @@ namespace OpheliasOasis
                 areYouSure = false;
             }
         }
+        
+        /// <summary>
+        /// Updates the existing reservation with newly inserted info
+        /// </summary>
         private async void UpdateReservation()
         {
             List<double> updatedPrice = new List<double>();
@@ -163,6 +174,9 @@ namespace OpheliasOasis
             resetFeilds();
         }
 
+        /// <summary>
+        /// Blackout and color specific dates based off occupancy
+        /// </summary>
         private void CalendarView_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
         {
             var res_start_today = from item in resv.Values where item.StartDate.Date == DateTime.Now.Date select item;
@@ -211,6 +225,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Sets the start date for reservation
+        /// </summary>
         private void StartDateButton_Click(object sender, RoutedEventArgs e)
         {
             // No Date is selected
@@ -238,6 +255,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Sets the end date for reservation
+        /// </summary>
         private void EndDateButton_Click(object sender, RoutedEventArgs e)
         {
             // No Date Selected
@@ -259,6 +279,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Allows reservation fields to be shown if checks pass
+        /// </summary>
         private void CreateReservationButton_Click(object sender, RoutedEventArgs e)
         {
             // Checks to make sure that none of the days are fully booked
@@ -277,6 +300,9 @@ namespace OpheliasOasis
             ReservationTypeDropdown.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Creates the reservation and sends to the DB
+        /// </summary>
         private void ConfirmReservationButton_Click(object sender, RoutedEventArgs e)
         {
             if (FirstNameBox.Text.Length == 0 || LastNameBox.Text.Length == 0 || PhoneNumberBox.Text.Length == 0) 
@@ -381,6 +407,9 @@ namespace OpheliasOasis
             PaymentMessage.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Sets the visibility of fields
+        /// </summary>
         private void SetFeildsVisiablity(int selection)
         {
             if (selection == 0)               // Select Reservation is selected
@@ -418,6 +447,9 @@ namespace OpheliasOasis
             }
         }
 
+        /// <summary>
+        /// Contains many checks for legal reservation types when a new one is selected
+        /// </summary>
         private void ReservationTypeDropdown_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!EndDateLabel.Text.Equals("End Date"))           // for some reason, this method runs right when it's created. So this is just to prevent errors. Don't delete
@@ -496,11 +528,14 @@ namespace OpheliasOasis
                         TotalAmountLabel.Visibility = Visibility.Collapsed;
                     }
                 }
-                TotalAmountLabel.Text = "$" + total;
+                TotalAmountLabel.Text = "$" + total.ToString("0.00");
             }
 
         }
 
+        /// <summary>
+        /// Resets a variety of fields to empty
+        /// </summary>
         private void resetFeilds()
         {
             FirstNameBox.Visibility = Visibility.Collapsed;
@@ -538,6 +573,9 @@ namespace OpheliasOasis
             IsUpdatingValue = false;
         }
 
+        /// <summary>
+        /// Sets the DB
+        /// </summary>
         public void setDB(src.DatabaseManager database)
         {
             resv = database.GetReservations();
