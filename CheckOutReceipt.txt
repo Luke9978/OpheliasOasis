@@ -1,4 +1,9 @@
 Ophelia Oasis Receipt
-Date: 4/29/2022 8:47:32 PM
+Date: 4/29/2022 9:01:02 PM
 
 Ludwig, Sarah
+Room ID: 0
+Arrival Date: 9/10/2022 12:00:00 AM
+Departure Date: 9/22/2022 12:00:00 AM
+Number of Nights: 12
+Total Charge: $951.40
