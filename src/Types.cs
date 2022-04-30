@@ -37,8 +37,7 @@ namespace OpheliasOasis
         // Param: Set key to 0
         public void Add(int key, V value)
         {
-            key = 0;
-
+            if (key == -1) key = 0;
             // Avoid key collision
             while (this.ContainsKey(key))
             {
