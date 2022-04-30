@@ -105,7 +105,7 @@ namespace OpheliasOasis
             
             foreach(var i in resf)
             {
-                var custf = from item in cust.Values where item.ReservationID == i.ReservationID select item;
+                var custf = from item in cust.Values where item.Id == i.CustomerID select item;
 
                 await FileIO.WriteTextAsync(file, "From: OpheliaOasis@gmail.com\nTo: " + custf.First().Email + "\n\n");
                 await FileIO.AppendTextAsync(file, "Date: "+DateTime.Now+"\n");

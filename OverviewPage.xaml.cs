@@ -114,7 +114,7 @@ namespace OpheliasOasis
 
             }
             double diff = Math.Max(updatedPrice.Sum() - updatingRes.Prices.Sum(), 0.0);
-            var popup = new MessageDialog("Are you sure? Price differnce: " + diff.ToString());
+            var popup = new MessageDialog("Are you sure? Price difference: " + diff.ToString());
             popup.Commands.Add(new UICommand(
                     "Yes",
                     new UICommandInvokedHandler(this.CommandInvokedHandler)));
@@ -378,7 +378,7 @@ namespace OpheliasOasis
             cust[newCustomer.Id] = newCustomer;
 
             resetFeilds();
-
+            PaymentMessage.Visibility = Visibility.Visible;
         }
 
         private void SetFeildsVisiablity(int selection)

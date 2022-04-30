@@ -9,7 +9,7 @@
     d:DesignHeight="899.699" Width="1125">
 
     <Grid Margin="0,0,0,0">
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Management" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Management" VerticalAlignment="Top" FontSize="24"/>
         <CalendarView x:Name="PriceDateCalendar" CalendarViewDayItemChanging="PriceDateCalendar_CalendarViewDayItemChanging" Margin="37,52,0,0" Height="539" Width="602" ManipulationMode="All" SelectionMode="Multiple" VerticalAlignment="Top" IsTodayHighlighted="False"/>
         <Button Content="Set Rate" Margin="995,853,0,0" VerticalAlignment="Top" Width="114" Click="Button_Set_Rate"/>
         <TextBox Name="wantedPrice" HorizontalAlignment="Left" Margin="995,808,0,0" TextWrapping="Wrap" PlaceholderText="Rate" VerticalAlignment="Top" Height="40" Width="114"/>

@@ -62,8 +62,12 @@ namespace OpheliasOasis
             CustNamesLabel.Text = "First Name: " + ec.FirstName + "\t\tLast Name: " + ec.LastName;
             CustPhoneEmailLabel.Text = "Phone Number: " + ec.Phone + "\t\tEmail Address: " + ec.Email;
             CustIDresIDLabel.Text = "CustomerID: " + ec.Id;
+            CustCCNumLabel.Text = "Credit Card #: " + ec.CardOnFile.CardNumbers;
+            CustCCNameLabel.Text = "Name on Card: " + ec.CardOnFile.Name;
+            CustCCExpLabel.Text = "Expiration Date: " + ec.CardOnFile.ExpirationDate;
+            CustLookErrorLabel.Text = "";
 
-            var existingReservation = from item in resv.Values where (ec.ReservationID == item.ReservationID && item.Status != PaymentStatus.Completed) orderby item.StartDate select item;
+            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID && item.Status != PaymentStatus.Completed) orderby item.StartDate select item;
 
             if(existingReservation.Count() > 0)
             {
@@ -76,12 +80,13 @@ namespace OpheliasOasis
                 ReservationPricesStatusLabel.Text = "Price: " + t.ToString("0.00") + "\t\tStatus: " + existingReservation.First().Status.ToString() + "\n";
 
             }
+            ControlPanel.Visibility = Visibility.Visible;
         }
 
 
         private void CheckInButton_Click(object sender, RoutedEventArgs e)
         {
-            var findReservation = from item in resv.Values where item.ReservationID == ec.ReservationID select item;
+            var findReservation = from item in resv.Values where item.CustomerID == ec.Id orderby item.StartDate ascending select item;
             int[] available = new int[46]; available[0] = 1;
             int room = 0;
             var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID && item.Status != PaymentStatus.Completed) select item;
@@ -96,13 +101,20 @@ namespace OpheliasOasis
                 }
             }
             
-            foreach(var i in available)
+            for(int i = 1; i < 46; i++)
             {
                 if (available[i] == 0)
+                {
                     room = i;
+                    break;
+                }
             }
 
-            findReservation.First().RoomID = room;
+            var targetRes = findReservation.First();
+            if (targetRes == null)
+                return;
+            targetRes.RoomID = room;
+            resv[targetRes.ReservationID] = targetRes;
         }
 
       
@@ -129,7 +141,7 @@ namespace OpheliasOasis
                 CustLookErrorLabel.Text = "Select Correct File";
                 return;
             }
-            var findReservation = from item in resv.Values where (item.ReservationID == ec.ReservationID) orderby item.StartDate select item;
+            var findReservation = from item in resv.Values where (item.CustomerID == ec.Id) orderby item.StartDate select item;
 
             await FileIO.WriteTextAsync(file, "Ophelia Oasis Receipt\nDate: " + DateTime.Now + "\n\n");
             await FileIO.AppendTextAsync(file, ec.LastName + ", " + ec.FirstName+"\n");
@@ -179,8 +191,29 @@ namespace OpheliasOasis
                     }
                 }
             }
+        }
 
+        private void AddCreditCardButton_Click(object sender, RoutedEventArgs e)
+        {
+            NewCardNumberBox.Visibility = Visibility.Visible;
+            NewCardNameBox.Visibility = Visibility.Visible;
+            NewCardExpDateBox.Visibility = Visibility.Visible;
+            SaveCreditCardButton.Visibility = Visibility.Visible;
+        }
 
+        private void SaveCreditCardButton_Click(object sender, RoutedEventArgs e)
+        {
+            CustCCNumLabel.Text = "Credit Card #: " + NewCardNumberBox.Text;
+            CustCCNameLabel.Text = "Name on Card: " + NewCardNameBox.Text;
+            CustCCExpLabel.Text = "Expiration Date: " + NewCardExpDateBox.Text;
+            ec.CardOnFile.CardNumbers = CustCCNumLabel.Text;
+            ec.CardOnFile.Name = CustCCNameLabel.Text;
+            ec.CardOnFile.ExpirationDate = CustCCExpLabel.Text;
+            cust[ec.Id] = ec;
+            NewCardNumberBox.Visibility = Visibility.Collapsed;
+            NewCardNameBox.Visibility = Visibility.Collapsed;
+            NewCardExpDateBox.Visibility = Visibility.Collapsed;
+            SaveCreditCardButton.Visibility = Visibility.Collapsed;
         }
     }
 }
