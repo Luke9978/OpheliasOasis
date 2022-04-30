@@ -77,6 +77,46 @@ namespace OpheliasOasis
             lastButton = 4;
         }
 
+        void Email_button(object sender, RoutedEventArgs e)     // Print Button
+        {
+            _ = EmailText();
+        }
+
+        public async Task EmailText()
+        {
+            // This will bring up the File Explorer, user needs to Select .txt file
+            var pick = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                // we want thumbnail viewing mode and also to start in the Documents Library
+
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
+            };
+            pick.FileTypeFilter.Add(".txt");        // looking for a .txt file
+
+            file = await pick.PickSingleFileAsync();
+            if (file == null || !file.DisplayName.Equals("Email"))
+            {
+                PrintMessage.Text = "Select Correct File";
+                return;
+            }
+
+            var resf = from item in resv.Values where (item.StartDate.Subtract(DateTime.Now.Date).Days > 30 && item.StartDate.Subtract(DateTime.Now.Date).Days < 45) && item.Type == ReservationType.SixtyDays && item.Status == PaymentStatus.NotPaid select item;
+            
+            foreach(var i in resf)
+            {
+                var custf = from item in cust.Values where item.ReservationID == i.ReservationID select item;
+
+                await FileIO.WriteTextAsync(file, "From: OpheliaOasis@gmail.com\nTo: " + custf.First().Email + "\n\n");
+                await FileIO.AppendTextAsync(file, "Date: "+DateTime.Now+"\n");
+                await FileIO.AppendTextAsync(file, "You need to pay before the bill before the 30 day mark (30 days until your check in date)\n\n");
+                await FileIO.AppendTextAsync(file, "Sincerely,\nOphelia's Oasis Employee\n\n\n\n\n\n\n\n\n");
+            }
+
+
+
+        }
+
         void Print_button(object sender, RoutedEventArgs e)     // Print Button
         {
             _ = AddText();
