@@ -63,9 +63,19 @@ namespace OpheliasOasis
             CustPhoneEmailLabel.Text = "Phone Number: " + ec.Phone + "\t\tEmail Address: " + ec.Email;
             CustIDresIDLabel.Text = "CustomerID: " + ec.Id;
 
-            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID) select item;
+            var existingReservation = from item in resv.Values where (ec.ReservationID == item.ReservationID && item.Status != PaymentStatus.Completed) orderby item.StartDate select item;
 
-            // make sure to add status to the reservation as well
+            if(existingReservation.Count() > 0)
+            {
+                ReservationTypeDateLabel.Text = "Type: " + existingReservation.First().Type.ToString() + "\tCheck-in: " + existingReservation.First().StartDate.ToShortDateString() + "\tCheck-out: " + existingReservation.First().EndDate.ToShortDateString();
+                double t = 0;
+                foreach(var item in existingReservation.First().Prices)
+                {
+                    t += item;
+                }
+                ReservationPricesStatusLabel.Text = "Price: " + t.ToString("0.00") + "\t\tStatus: " + existingReservation.First().Status.ToString() + "\n";
+
+            }
         }
 
 
@@ -99,7 +109,6 @@ namespace OpheliasOasis
         private void CheckOutButton_Click(object sender, RoutedEventArgs e)
         {
             _ = accomidationBill();
-            //set reservation status as paid
         }
 
         private async Task accomidationBill()
@@ -120,7 +129,7 @@ namespace OpheliasOasis
                 CustLookErrorLabel.Text = "Select Correct File";
                 return;
             }
-            var findReservation = from item in resv.Values where (item.ReservationID == ec.ReservationID && item.Status != PaymentStatus.Completed) orderby item.StartDate select item;
+            var findReservation = from item in resv.Values where (item.ReservationID == ec.ReservationID) orderby item.StartDate select item;
 
             await FileIO.WriteTextAsync(file, "Ophelia Oasis Receipt\nDate: " + DateTime.Now + "\n\n");
             await FileIO.AppendTextAsync(file, ec.LastName + ", " + ec.FirstName+"\n");
@@ -134,6 +143,8 @@ namespace OpheliasOasis
                 tot += item;
             }
             await FileIO.AppendTextAsync(file, "Total Charge: $" + tot.ToString("0.00"));
+
+            findReservation.First().Status = PaymentStatus.Completed;
         }
 
 
