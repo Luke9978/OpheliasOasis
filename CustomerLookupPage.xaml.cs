@@ -63,7 +63,7 @@ namespace OpheliasOasis
             CustPhoneEmailLabel.Text = "Phone Number: " + ec.Phone + "\t\tEmail Address: " + ec.Email;
             CustIDresIDLabel.Text = "CustomerID: " + ec.Id;
 
-            var existingReservation = from item in resv.Values where (ec.ReservationID == item.ReservationID && item.Status != PaymentStatus.Completed) orderby item.StartDate select item;
+            var existingReservation = from item in resv.Values where (ec.ReservationID == item.ReservationID) orderby item.StartDate select item;
 
             if(existingReservation.Count() > 0)
             {
@@ -84,7 +84,7 @@ namespace OpheliasOasis
             var findReservation = from item in resv.Values where item.ReservationID == ec.ReservationID select item;
             int[] available = new int[46]; available[0] = 1;
             int room = 0;
-            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID && item.Status != PaymentStatus.Completed) select item;
+            var existingReservation = from item in resv.Values where (ec.Id == item.CustomerID && (item.Status != PaymentStatus.Completed || item.Status != PaymentStatus.Cancled)) select item;
             
             var resF = from item in resv.Values where (item.StartDate.Date <= DateTime.Now.Date && item.EndDate.Date > DateTime.Now.Date) orderby item.RoomID select item;
             foreach(var item in resF)
@@ -171,16 +171,45 @@ namespace OpheliasOasis
                 
                 if (cust.ContainsKey(key))
                 {
-                    var list = from item in resv.Values where item.CustomerID == key && item.Status != PaymentStatus.Completed select item;
+                    var list = from item in resv.Values where item.CustomerID == key && (item.Status != PaymentStatus.Completed || item.Status != PaymentStatus.Cancled) orderby item.StartDate ascending select item;
                     Reservation reservation = list.First();
                     if (reservation != null)
                     {
                         page.GoToOverview(reservation);
+                        LookupCustomerButton_Click(null, null);
                     }
                 }
             }
 
 
+        }
+
+        private void DeleteReservationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CustIDresIDLabel.Text != "")
+            {
+                int key = -1;
+                try
+                {
+                    key = int.Parse(CustIDresIDLabel.Text.Split(" ")[1]);
+                }
+                catch (Exception)
+                {
+                    return;
+                }
+
+                if (cust.ContainsKey(key))
+                {
+                    var list = from item in resv.Values where item.CustomerID == key && (item.Status != PaymentStatus.Completed || item.Status != PaymentStatus.Cancled) orderby item.StartDate ascending select item;
+                    Reservation reservation = list.First();
+                    if (reservation != null)
+                    {
+                        reservation.Status = PaymentStatus.Cancled;
+                        resv[reservation.ReservationID] = reservation;
+                        LookupCustomerButton_Click(null, null);
+                    }
+                }
+            }
         }
     }
 }
