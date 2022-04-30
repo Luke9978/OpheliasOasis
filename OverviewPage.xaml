@@ -43,7 +43,9 @@
             <TextBox x:Name="NameOnCardBox" TextWrapping="Wrap" Text="" HorizontalAlignment="Left" PlaceholderText="Name on Card" Width="224" Visibility="Collapsed"/>
             <TextBox x:Name="ExpirationDateBox" TextWrapping="Wrap" Text="" PlaceholderText="Expiration Date" Width="224" HorizontalAlignment="Left" Visibility="Collapsed"/>
             <TextBlock x:Name="TotalAmountLabel" TextWrapping="Wrap" Text="$0.00" HorizontalAlignment="Center" Height="30" Width="80" FontSize="24" Visibility="Collapsed"/>
-            <Button x:Name="ConfirmReservationButton" Content="Confirm Reservation" Click="ConfirmReservationButton_Click"/>
+            <Button x:Name="ConfirmReservationButton" Content="Confirm Reservation" Click="ConfirmReservationButton_Click" Width="145"/>
+            <TextBlock/>
+            <Button x:Name="CancelReservationButton" Content="Cancel Reservation" Click="CancelReservationButton_Click" Width="145"/>
             <TextBlock x:Name="PaymentMessage" TextWrapping="Wrap" Text="Payment Successful" FontSize="14" HorizontalAlignment="Left" Visibility="Collapsed"/>
         </StackPanel>
 

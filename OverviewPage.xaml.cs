@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI;
+using Windows.UI.Popups;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -84,6 +85,7 @@ namespace OpheliasOasis
                 }
             }
         }
+
         private void StartDateButton_Click(object sender, RoutedEventArgs e)
         {
             // No Date is selected
@@ -141,14 +143,35 @@ namespace OpheliasOasis
             // if we are booked, then don't let this be visible -- needs to be inserted
             ReservationFields.Visibility = Visibility.Visible;
             ReservationTypeDropdown.SelectedIndex = 0;
-
-            // also need to calculate which reservations are available with the given dates... not sure how we can use the combobox.
-            // Can we make items in the dropdown invisible?
         }
 
         private void ConfirmReservationButton_Click(object sender, RoutedEventArgs e)
         {
-
+            if (FirstNameBox.Text.Length == 0 || LastNameBox.Text.Length == 0 || PhoneNumberBox.Text.Length == 0) 
+            {
+                var msg = new MessageDialog("Invalid input");
+                msg.Content = "You can't leave first name, last name, or phone number blank.";
+                msg.Commands.Add(new UICommand("Okay"));
+                msg.ShowAsync();
+                return;
+            }
+            else if (ReservationTypeDropdown.SelectedIndex != 2 && (CreditCardBox.Text.Length == 0 || NameOnCardBox.Text.Length == 0 || ExpirationDateBox.Text.Length == 0))
+            {
+                var msg = new MessageDialog("Invalid input");
+                msg.Content = "Fill in all credit card fields.";
+                msg.Commands.Add(new UICommand("Okay"));
+                msg.ShowAsync();
+                return;
+            }
+            else if (ReservationTypeDropdown.SelectedIndex == 2 && EmailBox.Text.Length == 0)
+            {
+                var msg = new MessageDialog("Invalid input");
+                msg.Content = "Fill in your email.";
+                msg.Commands.Add(new UICommand("Okay"));
+                msg.ShowAsync();
+                return;
+            }
+            //ReservationTypeDropdown.SelectedIndex(1)
             Reservation newReservation = new Reservation();
             double discount = 0;
 
@@ -209,8 +232,11 @@ namespace OpheliasOasis
 
             resv.Add(newReservation); //add the reservation to database
 
+            // Update the DB
             newReservation.CustomerID = newCustomer.Id;
-            newCustomer.ReservationID = newReservation.ReservationID;
+            newCustomer.Id = newReservation.CustomerID;
+            resv[newReservation.ReservationID] = newReservation;
+            cust[newCustomer.Id] = newCustomer;
 
         }
 
@@ -222,14 +248,16 @@ namespace OpheliasOasis
                 int selectedIndex = ReservationTypeDropdown.SelectedIndex;
                 DateTime today = DateTime.Now.Date;
                 double averageOccupancy = 0;
-                double numDays = 0;
+                int totalOccupancy = 0;
+                int numDays = 0;
                 for (DateTime i = start; i < end; i = i.AddDays(1))
                 {
-                    var res_today = from item in resv.Values where item.StartDate.Date >= i.Date && item.EndDate.Date <= i.Date select item;
-                    averageOccupancy += res_today.Count();
+                    //var res_today = from item in resv.Values where item.StartDate.Date >= i.Date && item.EndDate.Date <= i.Date select item;
+                    var res_today = from item in resv.Values where item.StartDate.Date == i.Date select item;
+                    totalOccupancy += res_today.Count();
                     numDays++;
                 }
-                averageOccupancy /= numDays;
+                averageOccupancy = totalOccupancy / numDays;
                 ErrorMessage.Visibility = Visibility.Collapsed;
                 ConfirmReservationButton.IsEnabled = true;
                 if (selectedIndex == 1 && today.AddDays(90) > start.Date)
@@ -309,7 +337,14 @@ namespace OpheliasOasis
                     {
                         ErrorMessage.Visibility = Visibility.Visible;
                         ErrorMessage.Text = $"Date selected does not have a rate. Date: {s.Date.ToString()}";
-                        ConfirmReservationButton.IsEnabled = false;
+                        FirstNameBox.Visibility = Visibility.Collapsed;
+                        LastNameBox.Visibility = Visibility.Collapsed;
+                        PhoneNumberBox.Visibility = Visibility.Collapsed;
+                        EmailBox.Visibility = Visibility.Collapsed;
+                        CreditCardBox.Visibility = Visibility.Collapsed;
+                        NameOnCardBox.Visibility = Visibility.Collapsed;
+                        ExpirationDateBox.Visibility = Visibility.Collapsed;
+                        TotalAmountLabel.Visibility = Visibility.Collapsed;
                     }
                 }
                 TotalAmountLabel.Text = "$" + total;
@@ -317,9 +352,31 @@ namespace OpheliasOasis
 
         }
 
+        private void CancelReservationButton_Click(object sender, RoutedEventArgs e)
+        {
+            FirstNameBox.Visibility = Visibility.Collapsed;
+            LastNameBox.Visibility = Visibility.Collapsed;
+            PhoneNumberBox.Visibility = Visibility.Collapsed;
+            EmailBox.Visibility = Visibility.Collapsed;
+            CreditCardBox.Visibility = Visibility.Collapsed;
+            NameOnCardBox.Visibility = Visibility.Collapsed;
+            ExpirationDateBox.Visibility = Visibility.Collapsed;
+            TotalAmountLabel.Visibility = Visibility.Collapsed;
 
+            FirstNameBox.Text = "";
+            LastNameBox.Text = "";
+            PhoneNumberBox.Text = "";
+            EmailBox.Text = "";
+            CreditCardBox.Text = "";
+            NameOnCardBox.Text = "";
+            ExpirationDateBox.Text = "";
+            TotalAmountLabel.Text = "";
 
-
+            ConfirmReservationButton.IsEnabled = false;
+            ErrorMessage.Visibility = Visibility.Collapsed;
+            ConfirmReservationButton.IsEnabled = false;
+            ReservationTypeDropdown.SelectedIndex = 0;
+        }
 
         public void setDB(src.DatabaseManager database)
         {
